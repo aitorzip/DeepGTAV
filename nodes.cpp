@@ -3,8 +3,9 @@
 #include "script.h"
 #include <unordered_map>
 
-NodesMap populateNodes(const char* pathsfile, int nodetype){
-	NodesMap nodes;
+std::unordered_map<int, tNode> nodes;
+
+void populateNodes(const char* pathsfile, int nodetype){
 	std::unordered_map<std::string, tNode> tmpnodes;
 	tLink *tmplinks = (tLink*)malloc(80592 * sizeof(*tmplinks)); //Too large for the stack, need to store in the heap
 	int i = 0;
@@ -149,34 +150,33 @@ NodesMap populateNodes(const char* pathsfile, int nodetype){
 		node2 = tmpnodes[link.ref2];
 		m = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(node1.coord.x, node1.coord.y, 0, node2.coord.x, node2.coord.y, 0, FALSE);
 		link.direction.x = (node1.coord.x - node2.coord.x) / m; //Unitary vector pointing in the direction of the road
-		link.direction.y = (node1.coord.y - node2.coord.y) / m; 
+		link.direction.y = (node1.coord.y - node2.coord.y) / m;
 		node1.links.push_back(link);
 		node2.links.push_back(link);
+		setLinePoints(&node1);
+		setLinePoints(&node2);
 		nodes[node1.id] = node1;
 		nodes[node2.id] = node2;
 	}
 	free(tmplinks);
-	
-	return nodes;
 }
 
-std::vector<Vector3> getLinePoints(tNode node){
+void setLinePoints(tNode* node){
 	Vector3 linePoint;
 	tNode node2;
 	float lineOffset;
-	std::vector<Vector3> points;
 	int lanesIn, lanesOut, nlines;
 	int i = 0;
 	float laneWidth = 5.5;
-	tLink link = node.links.at(0);
+	tLink link = node->links.at(0);
 
-	if (link.attr.shortcut) return points;
+	if (link.attr.shortcut) return;
 
 	lanesIn = link.attr.lanesIn;
 	lanesOut = link.attr.lanesOut;
 	nlines = SYSTEM::FLOOR(1 + (lanesIn + lanesOut) / 2.0f);
 
-	if (node.attr.highway) laneWidth = 6.0;
+	if (node->attr.highway) laneWidth = 6.0;
 	else if (link.attr.narrowRoad) laneWidth = 4.2;
 
 	switch (link.attr.width){
@@ -193,20 +193,18 @@ std::vector<Vector3> getLinePoints(tNode node){
 	if ((nlines % 2) == 0) { //Even lanes
 		lineOffset = 0;
 		i = 1;
-		points.push_back(node.coord);
+		node->linePoints.push_back(node->coord);
 	}
 
 	for (; i < nlines; i++) {
-		linePoint.x = node.coord.x + lineOffset*link.direction.y + laneWidth*i*link.direction.y; //To the right
-		linePoint.y = node.coord.y - lineOffset*link.direction.x - laneWidth*i*link.direction.x;
-		linePoint.z = node.coord.z;
-		points.push_back(linePoint);
+		linePoint.x = node->coord.x + lineOffset*link.direction.y + laneWidth*i*link.direction.y; //To the right
+		linePoint.y = node->coord.y - lineOffset*link.direction.x - laneWidth*i*link.direction.x;
+		linePoint.z = node->coord.z;
+		node->linePoints.push_back(linePoint);
 
-		linePoint.x = node.coord.x - lineOffset*link.direction.y - laneWidth*i*link.direction.y; //To the left
-		linePoint.y = node.coord.y + lineOffset*link.direction.x + laneWidth*i*link.direction.x;
-		linePoint.z = node.coord.z;
-		points.push_back(linePoint);
+		linePoint.x = node->coord.x - lineOffset*link.direction.y - laneWidth*i*link.direction.y; //To the left
+		linePoint.y = node->coord.y + lineOffset*link.direction.x + laneWidth*i*link.direction.x;
+		linePoint.z = node->coord.z;
+		node->linePoints.push_back(linePoint);
 	}
-
-	return points;
 }

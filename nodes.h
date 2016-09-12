@@ -1,3 +1,5 @@
+#pragma once
+
 #include "script.h"
 #include <vector>
 #include <unordered_map>
@@ -47,9 +49,10 @@ typedef struct{
 	Vector3 coord;
 	tNodeAttr attr;
 	std::vector<tLink> links;
+	std::vector<Vector3> linePoints;
 } tNode;
 
-typedef std::unordered_map<int, tNode> NodesMap;
+extern std::unordered_map<int, tNode> nodes;
 
-NodesMap populateNodes(const char* pathsfile, int nodetype);
-std::vector<Vector3> getLinePoints(tNode node);
+void populateNodes(const char* pathsfile, int nodetype);
+void setLinePoints(tNode* node);
