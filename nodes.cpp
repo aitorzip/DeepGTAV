@@ -162,10 +162,10 @@ void populateNodes(const char* pathsfile, int nodetype){
 }
 
 void setLinePoints(tNode* node){
-	Vector3 linePoint;
+	tLinePoint linePoint;
 	tNode node2;
 	float lineOffset;
-	int lanesIn, lanesOut, nlines;
+	int lanesIn, lanesOut, nlines, linesIn;
 	int i = 0;
 	float laneWidth = 5.5;
 	tLink link = node->links.at(0);
@@ -174,7 +174,7 @@ void setLinePoints(tNode* node){
 
 	lanesIn = link.attr.lanesIn;
 	lanesOut = link.attr.lanesOut;
-	nlines = SYSTEM::FLOOR(1 + (lanesIn + lanesOut) / 2.0f);
+	nlines = SYSTEM::ROUND((1 + lanesIn + lanesOut) / 2.0f);
 
 	if (node->attr.highway) laneWidth = 6.0;
 	else if (link.attr.narrowRoad) laneWidth = 4.2;
@@ -190,21 +190,29 @@ void setLinePoints(tNode* node){
 	}
 
 	lineOffset = laneWidth / 2;
+	linesIn = lanesIn / 2 - 1;
 	if ((nlines % 2) == 0) { //Even lanes
 		lineOffset = 0;
+		linesIn = lanesIn / 2;
 		i = 1;
-		node->linePoints.push_back(node->coord);
+		linePoint.coord.x = node->coord.x;
+		linePoint.coord.y = node->coord.y;
+		linePoint.coord.z = node->coord.z;
+		linePoint.laneIn = true;
+		node->linePoints.push_back(linePoint);
 	}
 
 	for (; i < nlines; i++) {
-		linePoint.x = node->coord.x + lineOffset*link.direction.y + laneWidth*i*link.direction.y; //To the right
-		linePoint.y = node->coord.y - lineOffset*link.direction.x - laneWidth*i*link.direction.x;
-		linePoint.z = node->coord.z;
+		linePoint.coord.x = node->coord.x + lineOffset*link.direction.y + laneWidth*i*link.direction.y; //To the right
+		linePoint.coord.y = node->coord.y - lineOffset*link.direction.x - laneWidth*i*link.direction.x;
+		linePoint.coord.z = node->coord.z;
+		linePoint.laneIn = true;
 		node->linePoints.push_back(linePoint);
 
-		linePoint.x = node->coord.x - lineOffset*link.direction.y - laneWidth*i*link.direction.y; //To the left
-		linePoint.y = node->coord.y + lineOffset*link.direction.x + laneWidth*i*link.direction.x;
-		linePoint.z = node->coord.z;
+		linePoint.coord.x = node->coord.x - lineOffset*link.direction.y - laneWidth*i*link.direction.y; //To the left
+		linePoint.coord.y = node->coord.y + lineOffset*link.direction.x + laneWidth*i*link.direction.x;
+		linePoint.coord.z = node->coord.z;
+		if (i > linesIn) linePoint.laneIn = false;
 		node->linePoints.push_back(linePoint);
 	}
 }

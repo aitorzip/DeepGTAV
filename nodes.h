@@ -44,12 +44,17 @@ typedef struct{
 	std::string ref2;
 } tLink;
 
+typedef struct {
+	Vector3 coord;
+	bool laneIn;
+} tLinePoint;
+
 typedef struct{
 	int id;
 	Vector3 coord;
 	tNodeAttr attr;
 	std::vector<tLink> links;
-	std::vector<Vector3> linePoints;
+	std::vector<tLinePoint> linePoints;
 } tNode;
 
 extern std::unordered_map<int, tNode> nodes;

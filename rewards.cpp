@@ -4,6 +4,7 @@
 #include <math.h>
 #include <algorithm>
 #include <vector>
+#include <map>
 
 //Works
 float rewardCollision(Vehicle vehicle, float currentSpeed, float max_speed) {
@@ -86,7 +87,7 @@ float rewardKeepSecurityDistance(Vector3 currentPosition, float min_distance){
 	for (int i = 0; i < count; i++)
 	{
 		if (ENTITY::IS_ENTITY_ON_SCREEN(vehicles[i])) {
-			vehicleCoords = ENTITY::GET_ENTITY_COORDS(vehicles[i], TRUE);
+			vehicleCoords = ENTITY::GET_ENTITY_COORDS(vehicles[i], FALSE);
 			distance = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(vehicleCoords.x, vehicleCoords.y, 0, currentPosition.x, currentPosition.y, 0, 0);
 			if (distance < shortest_distance) {
 				shortest_distance = distance;
@@ -125,20 +126,23 @@ float rewardCenterOfLane(Vector3 currentPosition, Vector3 forwardVector) { //AND
 	tLink link = node.links.at(0);
 	if (node.linePoints.size() == 0) return 0.0;
 
-	std::vector<float> distancesToLines;
+	std::map<float, bool> distancesToLines;
 	float a;
 	for (int i = 0; i < node.linePoints.size(); i++) {
-		a = GAMEPLAY::GET_ANGLE_BETWEEN_2D_VECTORS(currentPosition.x - node.linePoints.at(i).x, currentPosition.y - node.linePoints.at(i).y, node.linePoints.at(i).x - node.coord.x, node.linePoints.at(i).y - node.coord.y);
-		distancesToLines.push_back(abs(GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(currentPosition.x, currentPosition.y, 0, node.linePoints.at(i).x, node.linePoints.at(i).y, 0, FALSE)*SYSTEM::COS(a)));
+		a = GAMEPLAY::GET_ANGLE_BETWEEN_2D_VECTORS(currentPosition.x - node.linePoints.at(i).coord.x, currentPosition.y - node.linePoints.at(i).coord.y, node.linePoints.at(i).coord.x - node.coord.x, node.linePoints.at(i).coord.y - node.coord.y);
+		distancesToLines[abs(GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(currentPosition.x, currentPosition.y, 0, node.linePoints.at(i).coord.x, node.linePoints.at(i).coord.y, 0, FALSE)*SYSTEM::COS(a))] = node.linePoints.at(i).laneIn;
 	}
 
-	std::sort(distancesToLines.begin(), distancesToLines.end());
+	float d1, d2;
+	bool laneIn1, laneIn2;
+	std::map<float, bool>::const_iterator it = distancesToLines.begin();
+	d1 = it->first; laneIn1 = it->second; it++;
+	d2 = it->first; laneIn2 = it->second;
 	
-	float reward = 1 - (distancesToLines.at(1) - distancesToLines.at(0)) / (distancesToLines.at(0) + distancesToLines.at(1));
-	bool atTheRight = (currentPosition.y)*link.direction.x > (currentPosition.x)*link.direction.y;
+	float reward = 1 - (d2 - d1) / (d1 + d2);
 	float direction = forwardVector.x*link.direction.x + forwardVector.y*link.direction.y;
 
-	if (atTheRight) {
+	if (laneIn1 && laneIn2) {
 		if (direction < 0) {
 			reward = -reward;
 		}		
