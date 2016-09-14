@@ -174,7 +174,8 @@ void setLinePoints(tNode* node){
 
 	lanesIn = link.attr.lanesIn;
 	lanesOut = link.attr.lanesOut;
-	nlines = SYSTEM::ROUND((1 + lanesIn + lanesOut) / 2.0f);
+	nlines = (1 + lanesIn + lanesOut) / 2;
+	linesIn = SYSTEM::ROUND((lanesIn - lanesOut)/2.0);
 
 	if (node->attr.highway) laneWidth = 6.0;
 	else if (link.attr.narrowRoad) laneWidth = 4.2;
@@ -188,12 +189,10 @@ void setLinePoints(tNode* node){
 	default:
 		break;
 	}
-
-	lineOffset = laneWidth / 2;
-	linesIn = lanesIn / 2 - 1;
-	if ((nlines % 2) == 0) { //Even lanes
+	
+	lineOffset = laneWidth/2;
+	if (((lanesIn + lanesOut) % 2) == 0) { //Even lanes
 		lineOffset = 0;
-		linesIn = lanesIn / 2;
 		i = 1;
 		linePoint.coord.x = node->coord.x;
 		linePoint.coord.y = node->coord.y;
