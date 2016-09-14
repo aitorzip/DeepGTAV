@@ -6,6 +6,16 @@
 #include <vector>
 #include <map>
 
+float rewardFunction(Vehicle vehicle, float desiredSpeed, float aggressivity) {
+	Vector3 position = ENTITY::GET_ENTITY_COORDS(vehicle, FALSE);
+	float speed = ENTITY::GET_ENTITY_SPEED(vehicle);
+	Vector3 forwardVector = ENTITY::GET_ENTITY_FORWARD_VECTOR(vehicle);
+	
+	if (ENTITY::HAS_ENTITY_COLLIDED_WITH_ANYTHING(vehicle))	return -1.0;
+	
+	return aggressivity*rewardKeepSpeed(speed, desiredSpeed) + (1.0 - aggressivity)*rewardCenterOfLane(position, forwardVector);
+}
+
 //Works
 float rewardCollision(Vehicle vehicle, float currentSpeed, float max_speed) {
 	if (ENTITY::HAS_ENTITY_COLLIDED_WITH_ANYTHING(vehicle)) {
@@ -70,8 +80,8 @@ float rewardCollisionWithObject(Vehicle vehicle, float currentSpeed, float max_s
 //WORKS
 float rewardKeepSpeed(float currentSpeed, float desiredSpeed) {
 	float reward = currentSpeed / desiredSpeed;
-	if (reward > 1) reward = (1 - reward);
-	if (reward < -1) reward = -1;
+	if (reward > 1.0) reward = (1.0 - reward);
+	if (reward < -1.0) reward = -1.0;
 	return reward;
 }
 
