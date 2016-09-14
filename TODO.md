@@ -3,3 +3,5 @@
 - [ ] Fix some special roads (i.e. highways some urban roads)
 - [ ] Think and create common reward function
 - [ ] Merge work with OpenAI env
+- [x] Detect road lines
+- [x] Detect collisions
