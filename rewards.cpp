@@ -120,6 +120,8 @@ float rewardCenterOfLane(Vector3 currentPosition, Vector3 forwardVector) { //AND
 		}
 		else return 0.0;
 	}
+	
+	if(!PATHFIND::IS_POINT_ON_ROAD(currentPosition.x, currentPostion.y, currentPosition.z, 0)) return -1.0;
 
 	int nodeID = PATHFIND::GET_NTH_CLOSEST_VEHICLE_NODE_ID(currentPosition.x, currentPosition.y, currentPosition.z, 1, 1, 300, 300);
 	tNode node = nodes[nodeID];
@@ -139,7 +141,7 @@ float rewardCenterOfLane(Vector3 currentPosition, Vector3 forwardVector) { //AND
 	d1 = it->first; laneIn1 = it->second; it++;
 	d2 = it->first; laneIn2 = it->second;
 	
-	float reward = 1 - (d2 - d1) / (d1 + d2);
+	float reward = d1/d2;
 	float direction = forwardVector.x*link.direction.x + forwardVector.y*link.direction.y;
 
 	if (laneIn1 && laneIn2) {
