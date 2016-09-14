@@ -128,16 +128,16 @@ float rewardCenterOfLane(Vector3 currentPosition, Vector3 forwardVector) { //AND
 	tLink link = node.links.at(0);
 	if (node.linePoints.size() == 0) return 0.0;
 
-	std::map<float, bool> distancesToLines;
+	std::multimap<float, bool> distancesToLines;
 	float a;
 	for (int i = 0; i < node.linePoints.size(); i++) {
 		a = GAMEPLAY::GET_ANGLE_BETWEEN_2D_VECTORS(currentPosition.x - node.linePoints.at(i).coord.x, currentPosition.y - node.linePoints.at(i).coord.y, node.linePoints.at(i).coord.x - node.coord.x, node.linePoints.at(i).coord.y - node.coord.y);
-		distancesToLines[abs(GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(currentPosition.x, currentPosition.y, 0, node.linePoints.at(i).coord.x, node.linePoints.at(i).coord.y, 0, FALSE)*SYSTEM::COS(a))] = node.linePoints.at(i).laneIn;
+		distancesToLines.emplace(abs(SYSTEM::VDIST(currentPosition.x, currentPosition.y, 0, node.linePoints.at(i).coord.x, node.linePoints.at(i).coord.y, 0)*SYSTEM::COS(a)), node.linePoints.at(i).laneIn);
 	}
 
 	float d1, d2;
 	bool laneIn1, laneIn2;
-	std::map<float, bool>::const_iterator it = distancesToLines.begin();
+	std::multimap<float, bool>::const_iterator it = distancesToLines.begin();
 	d1 = it->first; laneIn1 = it->second; it++;
 	d2 = it->first; laneIn2 = it->second;
 	
