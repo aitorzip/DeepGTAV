@@ -36,28 +36,29 @@ typedef struct {
 	bool dontUseForNavigation; //Dont Use For Navigation (0)
 } tLinkAttr;
 
-typedef struct{
-	Vector3 coord;
-	Vector3 direction;
-	tLinkAttr attr;
-	std::string ref1;
-	std::string ref2;
-} tLink;
-
 typedef struct {
 	Vector3 coord;
 	bool laneIn;
 } tLinePoint;
 
 typedef struct{
+	Vector3 coord;
+	Vector3 direction;
+	tLinkAttr attr;
+	std::vector<tLinePoint> linePoints;
+
+	std::string _ref1;
+	std::string _ref2;
+} tLink;
+
+typedef struct{
 	int id;
 	Vector3 coord;
 	tNodeAttr attr;
 	std::vector<tLink> links;
-	std::vector<tLinePoint> linePoints;
 } tNode;
 
 extern std::unordered_map<int, tNode> nodes;
 
-void populateNodes(const char* pathsfile, int nodetype);
-void setLinePoints(tNode* node);
+void populateNodes(const char* pathsfile);
+void setLinePoints(tNode* node, tLink link);

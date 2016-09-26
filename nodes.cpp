@@ -5,7 +5,7 @@
 
 std::unordered_map<int, tNode> nodes;
 
-void populateNodes(const char* pathsfile, int nodetype){
+void populateNodes(const char* pathsfile){
 	std::unordered_map<std::string, tNode> tmpnodes;
 	tLink *tmplinks = (tLink*)malloc(80592 * sizeof(*tmplinks)); //Too large for the stack, need to store in the heap
 	int i = 0;
@@ -84,7 +84,7 @@ void populateNodes(const char* pathsfile, int nodetype){
 
 				}
 			}
-			node.id = PATHFIND::GET_NTH_CLOSEST_VEHICLE_NODE_ID(node.coord.x, node.coord.y, node.coord.z, 1, nodetype, 300, 300);
+			node.id = PATHFIND::GET_NTH_CLOSEST_VEHICLE_NODE_ID(node.coord.x, node.coord.y, node.coord.z, 1, 1, 300, 300);
 			//PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(node.coord.x, node.coord.y, node.coord.z, &dummy, &(node.heading), nodetype, 300, 300);
 			//node.nodeID = PATHFIND::GET_NTH_CLOSEST_VEHICLE_NODE_ID_WITH_HEADING(node.coord.x, node.coord.y, node.coord.z, 1, &dummy, &(node.heading), nodetype, 300, 300);
 			tmpnodes[std::string(object->Attribute("guid"))] = node;
@@ -132,8 +132,8 @@ void populateNodes(const char* pathsfile, int nodetype){
 			ref1 = object->FirstChildElement()->NextSiblingElement()->NextSiblingElement()->NextSiblingElement()->FirstChildElement();
 			ref2 = ref1->NextSiblingElement();
 
-			link.ref1 = std::string(ref1->Attribute("guid"));
-			link.ref2 = std::string(ref2->Attribute("guid"));
+			link._ref1 = std::string(ref1->Attribute("guid"));
+			link._ref2 = std::string(ref2->Attribute("guid"));
 			tmplinks[i] = link;
 			i++;
 		}		
@@ -146,72 +146,86 @@ void populateNodes(const char* pathsfile, int nodetype){
 	float m;
 	for (i = 0; i < 80592; i++){
 		link = tmplinks[i];
-		node1 = tmpnodes[link.ref1];
-		node2 = tmpnodes[link.ref2];
+		node1 = tmpnodes[link._ref1];
+		node2 = tmpnodes[link._ref2];
 		m = GAMEPLAY::GET_DISTANCE_BETWEEN_COORDS(node1.coord.x, node1.coord.y, 0, node2.coord.x, node2.coord.y, 0, FALSE);
-		link.direction.x = (node1.coord.x - node2.coord.x) / m; //Unitary vector pointing in the direction of the road
-		link.direction.y = (node1.coord.y - node2.coord.y) / m;
-		node1.links.push_back(link);
-		node2.links.push_back(link);
-		setLinePoints(&node1);
-		setLinePoints(&node2);
+		link.direction.x = (node2.coord.x - node1.coord.x) / m; //Unitary vector pointing in the direction of the road
+		link.direction.y = (node2.coord.y - node1.coord.y) / m;
+
+		try {
+			node1 = nodes.at(node1.id);
+			node2 = nodes.at(node2.id);
+		}
+		catch (const std::out_of_range) {
+			//Empty on purpose
+		}
+
+		setLinePoints(&node1, link);
+		setLinePoints(&node2, link);
 		nodes[node1.id] = node1;
 		nodes[node2.id] = node2;
 	}
 	free(tmplinks);
 }
 
-void setLinePoints(tNode* node){
+void setLinePoints(tNode* node, tLink link){
+	
 	tLinePoint linePoint;
-	tNode node2;
-	float lineOffset;
-	int lanesIn, lanesOut, nlines, linesIn;
-	int i = 0;
-	float laneWidth = 5.5;
-	tLink link = node->links.at(0);
+	int linesIn, linesOut, starti;
+	float laneWidth, lineOffset;
 
-	//if (link.attr.shortcut) return;
-
-	lanesIn = link.attr.lanesIn;
-	lanesOut = link.attr.lanesOut;
-	nlines = SYSTEM::ROUND((1 + lanesIn + lanesOut) / 2.0f);
-	linesIn = SYSTEM::ROUND((lanesIn - lanesOut)/2.0f);
+	linesIn = link.attr.lanesIn + 1;
+	linesOut = link.attr.lanesOut + 1;
 
 	if (node->attr.highway) laneWidth = 6.0;
 	else if (link.attr.narrowRoad) laneWidth = 4.2;
+	else laneWidth = 5.5;
 
-	switch (link.attr.width){
-	case -1:
-		laneWidth = 3.5;
-		break;
-	case 5:
-		laneWidth = 6.0;
-	default:
-		break;
-	}
 	
-	lineOffset = laneWidth/2;
-	if (((lanesIn + lanesOut) % 2) == 0) { //Even lanes
+	if (link.attr.width > 0) { //Usually urban scenarios
+		lineOffset = laneWidth / 2;
+		starti = 0;
+	}
+	else if (link.attr.lanesOut == 0){ //Usually interurban scenarios TODO
+
+		if ((link.attr.lanesIn % 2) == 0) {
+			lineOffset = 0;
+			linesIn = (linesIn / 2) + 1;
+			starti = -(linesIn - 1);
+		}
+		else {
+			lineOffset = laneWidth / 2;
+			linesIn = linesIn / 2;
+			starti = -linesIn;
+		}
+		
+		linesOut = starti; //Skips linesOut loop
+	}
+	else { //Urban and interurban scenarios
 		lineOffset = 0;
-		i = 1;
-		linePoint.coord.x = node->coord.x;
-		linePoint.coord.y = node->coord.y;
-		linePoint.coord.z = node->coord.z;
-		linePoint.laneIn = true;
-		node->linePoints.push_back(linePoint);
+		starti = 1;
+
+		linePoint.coord = node->coord;
+		linePoint.laneIn = false;
+		link.linePoints.push_back(linePoint);		
 	}
 
-	for (; i < nlines; i++) {
-		linePoint.coord.x = node->coord.x + lineOffset*link.direction.y + laneWidth*i*link.direction.y; //To the right
-		linePoint.coord.y = node->coord.y - lineOffset*link.direction.x - laneWidth*i*link.direction.x;
+	linePoint.laneIn = true;
+	for (int i = starti; i < linesIn; i++) {
+		linePoint.coord.x = node->coord.x + link.direction.y*(lineOffset + laneWidth*i);
+		linePoint.coord.y = node->coord.y - link.direction.x*(lineOffset + laneWidth*i);
 		linePoint.coord.z = node->coord.z;
-		linePoint.laneIn = true;
-		node->linePoints.push_back(linePoint);
-
-		linePoint.coord.x = node->coord.x - lineOffset*link.direction.y - laneWidth*i*link.direction.y; //To the left
-		linePoint.coord.y = node->coord.y + lineOffset*link.direction.x + laneWidth*i*link.direction.x;
-		linePoint.coord.z = node->coord.z;
-		if (i > linesIn) linePoint.laneIn = false;
-		node->linePoints.push_back(linePoint);
+		link.linePoints.push_back(linePoint);
 	}
+
+	linePoint.laneIn = false;
+	for (int i = starti; i < linesOut; i++) {
+		linePoint.coord.x = node->coord.x - link.direction.y*(lineOffset + laneWidth*i);
+		linePoint.coord.y = node->coord.y + link.direction.x*(lineOffset + laneWidth*i);
+		linePoint.coord.z = node->coord.z;
+		link.linePoints.push_back(linePoint);
+	}
+
+	node->links.push_back(link);
+	
 }

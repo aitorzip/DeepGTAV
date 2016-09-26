@@ -22,51 +22,87 @@ float rewardKeepSpeed(float currentSpeed, float desiredSpeed) {
 	return reward;
 }
 
-//It also weights if you are in the wrong way or out of the road (negative reward)
+std::vector<tLinePoint> getCurrentLanePoints(tLink link, Vector3 currentPosition) {
+	std::multimap<float, tLinePoint> nearestLines;
+	std::vector<tLinePoint> pointPair;
+	tLinePoint linePoint1, linePoint2;
+	float d1, d2, pos1, pos2;
+	
+	for (int i = 0; i < link.linePoints.size(); i++) {
+		linePoint1 = link.linePoints.at(i);
+		nearestLines.emplace(SYSTEM::VDIST(currentPosition.x, currentPosition.y, 0, linePoint1.coord.x, linePoint1.coord.y, 0), linePoint1);
+	}
+
+	std::multimap<float, tLinePoint>::const_iterator it = nearestLines.begin();
+	d1 = it->first; linePoint1 = it->second; it++;
+	d2 = it->first; linePoint2 = it->second;
+
+	pos1 = (link.direction.x)*(currentPosition.y - linePoint1.coord.y) - (link.direction.y)*(currentPosition.x - linePoint1.coord.x);
+	pos2 = (link.direction.x)*(currentPosition.y - linePoint2.coord.y) - (link.direction.y)*(currentPosition.x - linePoint2.coord.x);
+
+	if (pos1*pos2 < 0.0) {
+		pointPair.push_back(linePoint1);
+		pointPair.push_back(linePoint2);
+	}
+
+	return pointPair;
+
+	
+}
+
 float rewardCenterOfLane(Vector3 currentPosition, Vector3 forwardVector) {
+	std::vector<tLinePoint> pointPair;
+	Vector3 laneCenter;
+	float d, a, direction, reward;
+	int nodeID;
+	tNode node;
+	tLink link;
 
 	//Load the nodes if didn't done before
 	if (nodes.size() == 0) {
 		if (PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) {
-			populateNodes("C:/Program Files/Rockstar Games/Grand Theft Auto V/paths.xml", 1);
+			populateNodes("C:/Program Files/Rockstar Games/Grand Theft Auto V/paths.xml");
 			PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 		}
 		else return 0.0;
 	}
+
+	if (!PATHFIND::IS_POINT_ON_ROAD(currentPosition.x, currentPosition.y, currentPosition.z, 0)) return -1.0;
 	
-	if(!PATHFIND::IS_POINT_ON_ROAD(currentPosition.x, currentPosition.y, currentPosition.z, 0)) return -1.0;
-
-	int nodeID = PATHFIND::GET_NTH_CLOSEST_VEHICLE_NODE_ID(currentPosition.x, currentPosition.y, currentPosition.z, 1, 1, 300, 300);
-	tNode node = nodes[nodeID];
-	tLink link = node.links.at(0);
-	if (node.linePoints.size() == 0) return 0.0;
-
-	std::multimap<float, bool> distancesToLines;
-	float a;
-	for (int i = 0; i < node.linePoints.size(); i++) {
-		a = GAMEPLAY::GET_ANGLE_BETWEEN_2D_VECTORS(currentPosition.x - node.linePoints.at(i).coord.x, currentPosition.y - node.linePoints.at(i).coord.y, node.linePoints.at(i).coord.x - node.coord.x, node.linePoints.at(i).coord.y - node.coord.y);
-		distancesToLines.emplace(abs(SYSTEM::VDIST(currentPosition.x, currentPosition.y, 0, node.linePoints.at(i).coord.x, node.linePoints.at(i).coord.y, 0)*SYSTEM::COS(a)), node.linePoints.at(i).laneIn);
+	for (int i = 1; i <= 6; i++) {
+		nodeID = PATHFIND::GET_NTH_CLOSEST_VEHICLE_NODE_ID(currentPosition.x, currentPosition.y, currentPosition.z, i, 1, 300, 300);
+		node = nodes[nodeID];
+		if (node.attr.special > 0) continue;
+		for (int j = 0; j < node.links.size(); j++){
+			link = node.links.at(j);
+			if (link.attr.shortcut || link.attr.width == -1) continue;
+			pointPair = getCurrentLanePoints(link, currentPosition);
+			if (pointPair.size() == 2) break;
+		}
+		if (pointPair.size() == 2) break;		
 	}
 
-	float d1, d2;
-	bool laneIn1, laneIn2;
-	std::multimap<float, bool>::const_iterator it = distancesToLines.begin();
-	d1 = it->first; laneIn1 = it->second; it++;
-	d2 = it->first; laneIn2 = it->second;
-	
-	float reward = d1/d2;
-	float direction = forwardVector.x*link.direction.x + forwardVector.y*link.direction.y;
+	if (pointPair.size() != 2) return -1.0;
 
-	if (laneIn1 && laneIn2) {
-		if (direction < 0) {
-			reward = -reward;
-		}		
-	}
-	else {
-		if (direction > 0) {
+	direction = forwardVector.x*link.direction.x + forwardVector.y*link.direction.y;
+
+	laneCenter.x = (pointPair.at(0).coord.x + pointPair.at(1).coord.x) / 2.0f;
+	laneCenter.y = (pointPair.at(0).coord.y + pointPair.at(1).coord.y) / 2.0f;
+
+	a = GAMEPLAY::GET_ANGLE_BETWEEN_2D_VECTORS(currentPosition.x - laneCenter.x, currentPosition.y - laneCenter.y, pointPair.at(0).coord.x - laneCenter.x, pointPair.at(0).coord.y - laneCenter.y);
+	d = SYSTEM::VDIST(currentPosition.x, currentPosition.y, 0, laneCenter.x, laneCenter.y, 0);
+	reward = 1.0f - (d*abs(SYSTEM::COS(a))) / SYSTEM::VDIST(pointPair.at(0).coord.x, pointPair.at(0).coord.y, 0, laneCenter.x, laneCenter.y, 0);
+
+	if (pointPair.at(0).laneIn || pointPair.at(1).laneIn) {
+		if (direction < 0.0) {
 			reward = -reward;
 		}
 	}
-	
+	else {
+		if (direction > 0.0) {
+			reward = -reward;
+		}
+	}
+
 	return reward;
 }
