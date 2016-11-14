@@ -1,5 +1,5 @@
 # DeepGTAV
-ScriptHook mod to build a vision-based deep learning environment using GTAV. It supports two main operation modes, Dataset generation or Reinforcement Learning environment (under development).
+ScriptHook mod to build a vision-based deep learning environment using GTAV. It supports two main operation modes, Dataset generation or Reinforcement Learning environment (under development)
 
 ## Installation instructions
 Update GTAV to the last version and just copy-paste the contents of bin/Release under your GTAV installation directory. Then set the correct Dataset store directory in the config.ini file and run the game. 
