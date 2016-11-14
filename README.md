@@ -25,6 +25,17 @@ The configuration options of the environment are set through the *config.ini* fi
 * **initialPosX:** Initial x position of the vehicle (will be redefined to closest road)
 * **initialPosY:** Initial y position of the vehicle (will be redefined to closest road)
 
+## Dataset generation description
+The in-game screenshots are stored as RGB PNG format, with the specified width and length of the config.ini file. These images are named in order of capture from 1 to undefined. Alongside the images, a file named dataset.txt contains a new line for each image name, with the labels associated to it separated by spaces. The labels are the following in the same order:
+
+* Speed (m/s)
+* Acceleration (m/s2)
+* Brake pedal position (0 to 1)
+* Steering angle (-1 to 1, left to right)
+* Throttle pedal position (0 to 1)
+* Yaw rate (deg/s)
+* Direction (-1 to left, 1 to right)
+
 ## TODO
 * Better describe the config options in this README file
 * Finish randomizing some events, add more cars
