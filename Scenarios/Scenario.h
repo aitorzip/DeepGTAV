@@ -11,6 +11,7 @@ private:
 
 	int weatherChangeDelay;
 	std::clock_t lastWeatherChange;
+	std::clock_t lastSafetyCheck;
 
 	float currentSpeed;
 	float prevSpeed;

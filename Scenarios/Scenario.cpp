@@ -57,30 +57,6 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	PED::SET_PED_INTO_VEHICLE(ped, vehicle, -1);
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(vehicleHash);
 
-	PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, true);
-	PLAYER::SET_POLICE_IGNORE_PLAYER(player, true);
-	PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player); // Never wanted
-	PLAYER::SET_MAX_WANTED_LEVEL(0);
-
-	// Put on seat belt
-	PED::SET_PED_CONFIG_FLAG(ped, 32, FALSE);
-
-	// Invincible vehicle
-	VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(vehicle, FALSE);
-	VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(vehicle, FALSE);
-	VEHICLE::SET_VEHICLE_HAS_STRONG_AXLES(vehicle, TRUE);
-
-	VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(vehicle, FALSE);
-	ENTITY::SET_ENTITY_INVINCIBLE(vehicle, TRUE);
-	ENTITY::SET_ENTITY_PROOFS(vehicle, 1, 1, 1, 1, 1, 1, 1, 1);
-
-	// Player invincible
-	PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
-
-	// Driving characteristics
-	PED::SET_DRIVER_AGGRESSIVENESS(ped, 0.0);
-	PED::SET_DRIVER_ABILITY(ped, 1.0);
-
 	//Time and weather
 	if (_initialHour == -1) hour = rand() % 24;
 	else hour = _initialHour % 24;
@@ -108,6 +84,7 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 
 	lastWeatherChange = std::clock();
 	weatherChangeDelay = _weatherChangeDelay;
+	lastSafetyCheck = lastWeatherChange;
 
 	//Puts camera on vehicle
 	rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
@@ -121,7 +98,7 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	CAM::RENDER_SCRIPT_CAMS(TRUE, FALSE, 0, TRUE, TRUE);
 
 	currentSpeed = 0.0;
-	prevSpeed = 0.0;
+	currentTime = std::clock();
 
 	//Starts driving!
 	switch (_drivingStyle) {
@@ -140,14 +117,44 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	
 
 void Scenario::step() {
+	std::clock_t now = std::clock();
+	float delay = ((float)(now - lastWeatherChange)) / CLOCKS_PER_SEC;
+
 	Vector3 rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
 	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
 
-	float delay = ((float)(std::clock() - lastWeatherChange)) / CLOCKS_PER_SEC;
 	if (delay > weatherChangeDelay) {
 		lastWeatherChange = std::clock();
 		GAMEPLAY::SET_RANDOM_WEATHER_TYPE(); //TODO: Randomize integer and set default weather from enum list
 	}
+
+	delay = ((float)(now - lastSafetyCheck)) / CLOCKS_PER_SEC;
+	if (delay > 10) {
+		//Avoid bad things such as getting killed by the police, robbed, dying in car accidents or other horrible stuff
+		PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, TRUE);
+		PLAYER::SET_POLICE_IGNORE_PLAYER(player, TRUE);
+		PLAYER::CLEAR_PLAYER_WANTED_LEVEL(player); // Never wanted
+
+		// Put on seat belt
+		PED::SET_PED_CONFIG_FLAG(ped, 32, FALSE);
+
+		// Invincible vehicle
+		VEHICLE::SET_VEHICLE_TYRES_CAN_BURST(vehicle, FALSE);
+		VEHICLE::SET_VEHICLE_WHEELS_CAN_BREAK(vehicle, FALSE);
+		VEHICLE::SET_VEHICLE_HAS_STRONG_AXLES(vehicle, TRUE);
+
+		VEHICLE::SET_VEHICLE_CAN_BE_VISIBLY_DAMAGED(vehicle, FALSE);
+		ENTITY::SET_ENTITY_INVINCIBLE(vehicle, TRUE);
+		ENTITY::SET_ENTITY_PROOFS(vehicle, 1, 1, 1, 1, 1, 1, 1, 1);
+
+		// Player invincible
+		PLAYER::SET_PLAYER_INVINCIBLE(player, TRUE);
+
+		// Driving characteristics
+		PED::SET_DRIVER_AGGRESSIVENESS(ped, 0.0);
+		PED::SET_DRIVER_ABILITY(ped, 1.0);
+	}
+
 }
 
 void Scenario::performActions(float throttle, float brake, float steering) {
@@ -160,9 +167,8 @@ void Scenario::performActions(float throttle, float brake, float steering) {
 float Scenario::getVehicleSpeed() {
 	prevSpeed = currentSpeed;
 	prevTime = currentTime;
-	currentSpeed = ENTITY::GET_ENTITY_SPEED(vehicle);
-
 	currentTime = std::clock();
+	currentSpeed = ENTITY::GET_ENTITY_SPEED(vehicle);
 
 	return currentSpeed;
 }
