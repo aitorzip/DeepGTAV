@@ -38,7 +38,7 @@ The in-game screenshots are stored as RGB PNG format, with the specified width a
 
 This way of storing the dataset has two main benefits:
 
-+ It allows easy shuffling of the data, by just reordering the lines of the dataset file.
++ It allows easy shuffling and splitting of data, by just reordering the lines or creating new dataset files.
 + Easy preview and/or modification of the images
 
 It can have some drawbacks also:
