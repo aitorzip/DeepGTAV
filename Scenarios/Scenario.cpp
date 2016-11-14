@@ -28,7 +28,7 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	heading = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 360));
 
 	while (!PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) WAIT(0);
-	PATHFIND::GET_CLOSEST_VEHICLE_NODE(x, y, 0, &pos, 1, 300, 300);
+	PATHFIND::GET_CLOSEST_MAJOR_VEHICLE_NODE(x, y, 0, &pos, 300, 300);
 	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
 	switch (_car) {

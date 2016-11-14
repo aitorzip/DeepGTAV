@@ -27,8 +27,7 @@ void main()
 		environment.step();
 		WAIT(0);
 	}
-
-	UI::SET_PAUSE_MENU_ACTIVE(TRUE);
+	TERMINATE();
 }
 
 void ScriptMain()
