@@ -26,7 +26,7 @@ The configuration options of the environment are set through the *config.ini* fi
 * **initialPosY:** Initial y position of the vehicle (will be redefined to closest road)
 
 ## Dataset generation description
-The in-game screenshots are stored as RGB PNG format, with the specified width and length of the config.ini file. These images are named in order of capture from 1 to undefined. Alongside the images, a file named dataset.txt contains a new line for each image name, with the labels associated to it separated by spaces. The labels are the following in the same order:
+The in-game screenshots are stored as RGB PNG format, with the specified width and length of the *config.ini* file. These images are named in order of capture from 1 to undefined. Alongside the images, a file named *dataset.txt* contains a new line for each image name, with the labels associated to it separated by spaces. The labels are the following in the same order:
 
 * Speed (m/s)
 * Acceleration (m/s2)
@@ -35,6 +35,16 @@ The in-game screenshots are stored as RGB PNG format, with the specified width a
 * Throttle pedal position (0 to 1)
 * Yaw rate (deg/s)
 * Direction (-1 to left, 1 to right)
+
+This way of storing the dataset has two main benefits:
+
++ It allows easy shuffling of the data, by just reordering the lines of the dataset file.
++ Easy preview and/or modification of the images
+
+It can have some drawbacks also:
+
+- Generates a lot of files, which can be hard to handle by graphical file browsers
+- Higher size, given by the generation of meta-data from images and files.
 
 ## TODO
 * Better describe the config options in this README file
