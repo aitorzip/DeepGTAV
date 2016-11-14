@@ -1,3 +1,5 @@
+<img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="800px">
+
 # DeepGTAV
 ScriptHook mod to build a vision-based deep learning environment using GTAV. It supports two main operation modes, Dataset generation or Reinforcement Learning environment (under development)
 
