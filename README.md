@@ -32,4 +32,4 @@ The configuration options of the environment are set through the *config.ini* fi
 * Implement RL mode
 
 ## Acknowledgements
-Many thanks to [@crizCraig](https://github.com/crizCraig) for pioneering this work with [DeepDrive](http://deepdrive.io/) and for his valuable advice!
+Many thanks to [@crizCraig](https://github.com/crizCraig) for pioneering this work with [DeepDrive](http://deepdrive.io/) and for his super valuable advice!
