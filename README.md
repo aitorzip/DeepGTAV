@@ -22,8 +22,8 @@ The configuration options of the environment are set through the *config.ini* fi
 * initialWeather: Initial weather type
 * initialHour: Initial in-game hour
 * initialMinute: Initial in-game minute
-* initialPosX: Initial x position of the vehicle (will be set to closest road)
-* initialPosY: Initial y position of the vehicle (will be set to closest road)
+* initialPosX: Initial x position of the vehicle (will be redefined to closest road)
+* initialPosY: Initial y position of the vehicle (will be redefined to closest road)
 
 ## TODO
 * Better describe the config options in this README file
