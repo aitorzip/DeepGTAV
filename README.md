@@ -43,4 +43,4 @@ The in-game screenshots are stored as RGB PNG format, with the specified width a
 * Implement RL mode
 
 ## Acknowledgements
-Many thanks to [@crizCraig](https://github.com/crizCraig) for pioneering this work with [DeepDrive](http://deepdrive.io/) and for his super valuable advice!
+Many thanks to [@crizCraig](https://github.com/crizCraig) for pioneering this work with [DeepDrive](http://deepdrive.io/) and for his super valuable advices!
