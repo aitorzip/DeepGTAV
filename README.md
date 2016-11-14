@@ -51,7 +51,6 @@ It can have some drawbacks also:
 - Higher size, given by the generation of meta-data from images and files.
 
 ## TODO
-* Better describe the config options in this README file
 * Finish randomizing some events, add more cars
 * Find a way to automatically close/restart the game once dataset generation has finished/vehicle is stuck.
 * Implement RL mode
