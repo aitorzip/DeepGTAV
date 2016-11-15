@@ -45,7 +45,7 @@ This way of storing the dataset has two main benefits:
 + It allows easy shuffling and splitting of data, by just reordering the lines or creating new dataset files.
 + Easy preview and/or modification of the images
 
-It can have some drawbacks also:
+It can also have some drawbacks:
 
 - Generates a lot of files, which can be hard to handle by graphical file browsers
 - Higher size, given by the generation of meta-data produced by the individual files.
