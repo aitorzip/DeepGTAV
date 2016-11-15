@@ -56,4 +56,4 @@ It can also have some drawbacks:
 * Implement RL mode
 
 ## Acknowledgements
-Many thanks to [@crizCraig](https://github.com/crizCraig) and the [OpenAI team](https://openai.com/) for providing me access to their repos and pioneering this work with [DeepDrive](http://deepdrive.io/)!
+Many thanks to [@crizCraig](https://github.com/crizCraig) and the [OpenAI team](https://openai.com/) for providing me with access to their repos and pioneering this work with [DeepDrive](http://deepdrive.io/)!
