@@ -48,7 +48,7 @@ This way of storing the dataset has two main benefits:
 It can have some drawbacks also:
 
 - Generates a lot of files, which can be hard to handle by graphical file browsers
-- Higher size, given by the generation of meta-data from images and files.
+- Higher size, given by the generation of meta-data produced by the individual files.
 
 ## TODO
 * Finish randomizing some events, add more cars
@@ -56,4 +56,4 @@ It can have some drawbacks also:
 * Implement RL mode
 
 ## Acknowledgements
-Many thanks to [@crizCraig](https://github.com/crizCraig) for pioneering this work with [DeepDrive](http://deepdrive.io/) and for his super valuable advices!
+Many thanks to [@crizCraig](https://github.com/crizCraig) and the [OpenAI team](https://openai.com/) for providing me access to their repos and pioneering this work with [DeepDrive](http://deepdrive.io/)!
