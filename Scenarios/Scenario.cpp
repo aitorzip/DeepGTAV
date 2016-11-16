@@ -121,17 +121,11 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 
 void Scenario::step() {
 	std::clock_t now = std::clock();
-	float delay = ((float)(now - lastWeatherChange)) / CLOCKS_PER_SEC;
 
 	Vector3 rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
 	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
 
-	if (delay > weatherChangeDelay) {
-		lastWeatherChange = std::clock();
-		GAMEPLAY::SET_RANDOM_WEATHER_TYPE(); //TODO: Randomize integer and set default weather from enum list
-	}
-
-	delay = ((float)(now - lastSafetyCheck)) / CLOCKS_PER_SEC;
+	float delay = ((float)(now - lastSafetyCheck)) / CLOCKS_PER_SEC;
 	if (delay > 10) {
 		//Avoid bad things such as getting killed by the police, robbed, dying in car accidents or other horrible stuff
 		PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, TRUE);
@@ -156,6 +150,26 @@ void Scenario::step() {
 		// Driving characteristics
 		PED::SET_DRIVER_AGGRESSIVENESS(ped, 0.0);
 		PED::SET_DRIVER_ABILITY(ped, 1.0);
+	} else {
+		delay = ((float)(now - lastWeatherChange)) / CLOCKS_PER_SEC;
+		if (delay > weatherChangeDelay) {
+			lastWeatherChange = std::clock();
+			switch (rand() % 12) {
+				default:
+				case 0: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("CLEAR"); break;
+				case 1: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("EXTRASUNNY"); break;
+				case 2: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("CLOUDS"); break;
+				case 3: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("OVERCAST"); break;
+				case 4: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("RAIN"); break;
+				case 5: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("CLEARING"); break;
+				case 6: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("THUNDER"); break;
+				case 7: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("SMOG"); break;
+				case 8: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("FOGGY"); break;
+				case 9: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("XMAS"); break;
+				case 10: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("SNOWLIGHT"); break;
+				case 11: GAMEPLAY::SET_WEATHER_TYPE_PERSIST("BLIZZARD"); break;
+			}
+		}
 	}
 
 }
