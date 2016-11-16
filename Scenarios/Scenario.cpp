@@ -31,6 +31,7 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	PATHFIND::GET_CLOSEST_MAJOR_VEHICLE_NODE(x, y, 0, &pos, 300, 300);
 	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
+	if(_car == -1) _car = rand() % 2;
 	switch (_car) {
 		default:
 		case 0: vehicleHash = GAMEPLAY::GET_HASH_KEY("blista"); break; 
@@ -66,6 +67,7 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 
 	TIME::SET_CLOCK_TIME(hour, minute, 0);
 
+	if(_initialWeather == -1) _initiañWeather = rand() % 12;
 	switch (_initialWeather) {
 		default:
 		case 0: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLEAR"); break;
@@ -101,6 +103,7 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	currentTime = std::clock();
 
 	//Starts driving!
+	if(_drivingStyle == -1) _drivingStyle = rand() % 8;
 	switch (_drivingStyle) {
 		default:
 		case 0: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 786603); break; //Normal (typically used by the game)
