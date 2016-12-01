@@ -1,11 +1,7 @@
-#include <stdlib.h>
-#include <ctime>
-
-#include "../lib/script.h"
-#include "../lib/utils.h"
 #include "Scenario.h"
 
-Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWeather, int _weatherChangeDelay, int _initialHour, int _initialMinute, int _initialPosX, int _initialPosY){
+//TODO: Fix bad initial positions.
+Scenario::Scenario(int _car, int _initialWeather, int _weatherChangeDelay, int _initialHour, int _initialMinute, int _initialPosX, int _initialPosY){
 	Vector3 pos, rotation;
 	float heading, x, y;
 	int hour, minute;
@@ -32,11 +28,11 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
 	switch (_car) {
-		default:
-		case 0: vehicleHash = GAMEPLAY::GET_HASH_KEY("blista"); break; 
-		case 1: vehicleHash = GAMEPLAY::GET_HASH_KEY("voltic"); break; //etc
+	default:
+	case 0: vehicleHash = GAMEPLAY::GET_HASH_KEY("blista"); break;
+	case 1: vehicleHash = GAMEPLAY::GET_HASH_KEY("voltic"); break; //etc
 	}
-	
+
 	STREAMING::REQUEST_MODEL(vehicleHash);
 	while (!STREAMING::HAS_MODEL_LOADED(vehicleHash)) WAIT(0);
 	while (!ENTITY::DOES_ENTITY_EXIST(vehicle)) {
@@ -60,26 +56,26 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	//Time and weather
 	if (_initialHour == -1) hour = rand() % 24;
 	else hour = _initialHour % 24;
-	
+
 	if (_initialMinute == -1) minute = rand() % 60;
 	else minute = _initialMinute % 60;
 
 	TIME::SET_CLOCK_TIME(hour, minute, 0);
 
 	switch (_initialWeather) {
-		default:
-		case 0: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLEAR"); break;
-		case 1: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("EXTRASUNNY"); break;
-		case 2: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLOUDS"); break;
-		case 3: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("OVERCAST"); break;
-		case 4: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("RAIN"); break;
-		case 5: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLEARING"); break;
-		case 6: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("THUNDER"); break;
-		case 7: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("SMOG"); break;
-		case 8: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("FOGGY"); break;
-		case 9: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("XMAS"); break;
-		case 10: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("SNOWLIGHT"); break;
-		case 11: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("BLIZZARD"); break;
+	default:
+	case 0: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLEAR"); break;
+	case 1: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("EXTRASUNNY"); break;
+	case 2: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLOUDS"); break;
+	case 3: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("OVERCAST"); break;
+	case 4: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("RAIN"); break;
+	case 5: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("CLEARING"); break;
+	case 6: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("THUNDER"); break;
+	case 7: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("SMOG"); break;
+	case 8: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("FOGGY"); break;
+	case 9: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("XMAS"); break;
+	case 10: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("SNOWLIGHT"); break;
+	case 11: GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST("BLIZZARD"); break;
 	}
 
 	lastWeatherChange = std::clock();
@@ -91,30 +87,13 @@ Scenario::Scenario(int _car, int _drivingStyle, float _setSpeed, int _initialWea
 	CAM::DESTROY_ALL_CAMS(TRUE);
 	camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
 	CAM::ATTACH_CAM_TO_ENTITY(camera, vehicle, 0, 0.5, 0.45, TRUE);
-	CAM::SET_CAM_FOV(camera, 50);
+	CAM::SET_CAM_FOV(camera, 60);
 	CAM::SET_CAM_ACTIVE(camera, TRUE);
 	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
 	CAM::SET_CAM_INHERIT_ROLL_VEHICLE(camera, TRUE);
 	CAM::RENDER_SCRIPT_CAMS(TRUE, FALSE, 0, TRUE, TRUE);
-
-	currentSpeed = 0.0;
-	currentTime = std::clock();
-
-	//Starts driving!
-	switch (_drivingStyle) {
-		default:
-		case 0: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 786603); break; //Normal (typically used by the game)
-		case 1: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 2883621); break; //IgnoreLights
-		case 2: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 5); break; //Sometimes Overtake traffic
-		case 3: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 1074528293); break; //Rushed
-		case 4: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 786468); break; //Avoid traffic
-		case 5: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 6); break; //Avoid traffic extreme
-		case 6: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 52); break; //Avoid everything
-		case 7: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 35); break; //Careful driving	
-	}
-
 }
-	
+
 
 void Scenario::step() {
 	std::clock_t now = std::clock();
@@ -155,76 +134,5 @@ void Scenario::step() {
 		PED::SET_DRIVER_ABILITY(ped, 1.0);
 	}
 
-}
-
-void Scenario::performActions(float throttle, float brake, float steering) {
-	CONTROLS::_SET_CONTROL_NORMAL(27, 71, throttle); //[0,1]
-	CONTROLS::_SET_CONTROL_NORMAL(27, 72, brake); //[0,1];
-	CONTROLS::_SET_CONTROL_NORMAL(27, 59, steering); //[-1,1]
-}
-
-//m/s
-float Scenario::getVehicleSpeed() {
-	prevSpeed = currentSpeed;
-	prevTime = currentTime;
-	currentTime = std::clock();
-	currentSpeed = ENTITY::GET_ENTITY_SPEED(vehicle);
-
-	return currentSpeed;
-}
-
-//m/s2. Never cal before getVehicleSpeed()
-float Scenario::getVehicleAcceleration() {
-	return (currentSpeed - prevSpeed) / (((float) (currentTime - prevTime)) / CLOCKS_PER_SEC);
-}
-
-//deg. Can sometimes be inacurate :(
-float Scenario::getVehicleYawAngle() {
-	Vector3 nodepos;
-	float nodeHeading;
-	float yaw;
-
-	Vector3 pos = ENTITY::GET_ENTITY_COORDS(vehicle, TRUE);
-	float vehHeading = 360.0 - ENTITY::GET_ENTITY_HEADING(vehicle);
-	PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(pos.x, pos.y, pos.z, &nodepos, &nodeHeading, 1, 300, 300);
-
-	yaw = vehHeading - nodeHeading;
-	if (yaw > 90) {
-		yaw = 180 - yaw;
-	}
-	else if (yaw < -90) {
-		yaw = yaw + 180;
-	}
-	
-	return yaw;
-}
-
-//degs
-float Scenario::getVehicleYawRate() {
-	Vector3 rates = ENTITY::GET_ENTITY_ROTATION_VELOCITY(vehicle);
-	currentYawRate = rates.z*180.0 / 3.14159265359;
-	return currentYawRate;
-}
-
-//-1, 0 or 1. Never call before getVehicleYawRate()
-int Scenario::getVehicleDirection() {
-	if (currentYawRate > 0) return 1;
-	else if (currentYawRate < 0) return -1;
-	else return 0;
-}
-
-//[0,1]
-float Scenario::getVehicleThrottlePosition() {
-	return getFloatValue(vehicle, 0x8D4);
-}
-
-//[0,1]
-float Scenario::getVehicleBrakePosition() {
-	return getFloatValue(vehicle, 0x8D8);
-}
-
-//[-1,1]
-float Scenario::getVehicleSteeringAngle() {
-	return getFloatValue(vehicle, 0x8CC)/-0.628319; //TODO: Depends on vehicle?
 }
 

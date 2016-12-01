@@ -8,11 +8,15 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Environments\Environment.cpp" />
+    <ClCompile Include="Environments\SLEnvironment.cpp" />
+    <ClCompile Include="Environments\RLEnvironment.cpp" />
     <ClCompile Include="lib\IniReader.cpp" />
     <ClCompile Include="Rewarders\GeneralRewarder.cpp" />
     <ClCompile Include="Rewarders\LaneRewarder.cpp" />
     <ClCompile Include="lib\main.cpp" />
+    <ClCompile Include="Scenarios\RLScenario.cpp" />
     <ClCompile Include="Scenarios\Scenario.cpp" />
+    <ClCompile Include="Scenarios\SLScenario.cpp" />
     <ClCompile Include="script.cpp" />
     <ClCompile Include="Rewarders\SpeedRewarder.cpp" />
     <ClCompile Include="Targets\Targets.cpp" />
@@ -20,12 +24,16 @@
     <ClCompile Include="lib\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Environments\Environment.h" />
+    <ClInclude Include="Environments\RLEnvironment.h" />
     <ClInclude Include="lib\IniReader.h" />
     <ClInclude Include="Rewarders\AbstractRewarder.h" />
-    <ClInclude Include="Environments\Environment.h" />
+    <ClInclude Include="Environments\SLEnvironment.h" />
     <ClInclude Include="Rewarders\GeneralRewarder.h" />
     <ClInclude Include="Rewarders\LaneRewarder.h" />
+    <ClInclude Include="Scenarios\RLScenario.h" />
     <ClInclude Include="Scenarios\Scenario.h" />
+    <ClInclude Include="Scenarios\SLScenario.h" />
     <ClInclude Include="lib\script.h" />
     <ClInclude Include="Rewarders\SpeedRewarder.h" />
     <ClInclude Include="Targets\Targets.h" />
@@ -67,7 +75,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_USRDLL;NativeSpeedo_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WINSOCKAPI_;WIN32;NDEBUG;_WINDOWS;_USRDLL;NativeSpeedo_EXPORTS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
     </ClCompile>
