@@ -1,6 +1,8 @@
 # DeepGTAV
 This is a plugin for GTAV that transforms it into a vision-based self-driving car development environment. It supports two main operation modes, Dataset generation or Reinforcement Learning environment (under development) and it is super easy to install!
 
+If you are using this code for research, please email me, I would like to hear more! :)
+
 <img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="800px">
 
 ## Installation instructions
