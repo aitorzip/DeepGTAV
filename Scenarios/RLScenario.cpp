@@ -1,7 +1,6 @@
 #include "RLScenario.h"
 
-RLScenario::RLScenario(int _car, int _initialWeather, int _weatherChangeDelay, int _initialHour, int _initialMinute, int _initialPosX, int _initialPosY) : Scenario(_car, _initialWeather, _weatherChangeDelay, _initialHour, _initialMinute, _initialPosX, _initialPosY){
-	
+RLScenario::RLScenario(int _car, int _initialWeather, int _weatherChangeDelay, int _initialHour, int _initialMinute, int _initialPosX, int _initialPosY, Rewarder& _rewarder) : rewarder(_rewarder), Scenario(_car, _initialWeather, _weatherChangeDelay, _initialHour, _initialMinute, _initialPosX, _initialPosY){
 }
 
 void RLScenario::performActions(float throttle, float brake, float steering) {
@@ -12,5 +11,5 @@ void RLScenario::performActions(float throttle, float brake, float steering) {
 
 //TODO
 float RLScenario::getReward() {
-	return 0.0;
+	return rewarder.computeReward(vehicle);
 }

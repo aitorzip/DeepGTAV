@@ -1,10 +1,10 @@
 #pragma once
 
-#include "AbstractRewarder.h"
+#include "Rewarder.h"
 #include "LaneRewarder.h"
 #include "SpeedRewarder.h"
 
-class GeneralRewarder : public AbstractRewarder {
+class GeneralRewarder : public Rewarder {
 private:
 	LaneRewarder laneRewarder;
 	SpeedRewarder speedRewarder;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AbstractRewarder.h"
+#include "Rewarder.h"
 #include <unordered_map>
 
 typedef struct {
@@ -55,7 +55,7 @@ typedef struct{
 	std::vector<tLink> links;
 } tNode;
 
-class LaneRewarder : public AbstractRewarder {
+class LaneRewarder : public Rewarder {
 private:
 	std::unordered_map<int, tNode> nodes;
 

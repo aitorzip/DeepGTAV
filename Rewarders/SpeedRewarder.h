@@ -1,8 +1,8 @@
 #pragma once
 
-#include "AbstractRewarder.h"
+#include "Rewarder.h"
 
-class SpeedRewarder : public AbstractRewarder {
+class SpeedRewarder : public Rewarder {
 private:
 	float setSpeed;
 public:

@@ -10,5 +10,4 @@
 #include "types.h"
 #include "enums.h"
 
-
 void ScriptMain();

@@ -27,7 +27,7 @@
     <ClInclude Include="Environments\Environment.h" />
     <ClInclude Include="Environments\RLEnvironment.h" />
     <ClInclude Include="lib\IniReader.h" />
-    <ClInclude Include="Rewarders\AbstractRewarder.h" />
+    <ClInclude Include="Rewarders\Rewarder.h" />
     <ClInclude Include="Environments\SLEnvironment.h" />
     <ClInclude Include="Rewarders\GeneralRewarder.h" />
     <ClInclude Include="Rewarders\LaneRewarder.h" />
