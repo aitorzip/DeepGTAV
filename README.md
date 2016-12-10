@@ -55,7 +55,7 @@ It can also have some drawbacks:
 ## TODO
 * Add more cars
 * Find a way to automatically close/restart the game once dataset generation has finished/vehicle is stuck.
-* Implement RL mode
+* Implement RL mode (check difference between input and vehicle real command)
 
 ## Acknowledgements
 Many thanks to [@crizCraig](https://github.com/crizCraig) and the [OpenAI team](https://openai.com/) for providing me with access to their repos and pioneering this work with [DeepDrive](http://deepdrive.io/)!
