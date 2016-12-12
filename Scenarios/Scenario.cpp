@@ -15,16 +15,16 @@ Scenario::Scenario(int _car, int _initialWeather, int _weatherChangeDelay, int _
 	srand(std::clock());
 	GAMEPLAY::SET_RANDOM_SEED(std::clock());
 
-	if (_initialPosX == -1) x = -3400 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (3600 + 3400)));
+	if (_initialPosX == -1) x = -3400 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 10000));
 	else x = _initialPosX;
 
-	if (_initialPosY == -1) y = -3600 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (7000 + 3600)));
+	if (_initialPosY == -1) y = -3600 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 10600));
 	else y = _initialPosY;
 
 	heading = static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 360));
 
 	while (!PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) WAIT(0);
-	PATHFIND::GET_CLOSEST_MAJOR_VEHICLE_NODE(x, y, 0, &pos, 300, 300);
+	PATHFIND::GET_CLOSEST_VEHICLE_NODE(x, y, 0, &pos, 0, 300, 300);
 	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
 	if(_car == -1) _car = rand() % 2;
