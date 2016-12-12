@@ -1,5 +1,5 @@
 # DeepGTAV
-This is a plugin for GTAV that transforms it into a vision-based self-driving car development environment. It supports two main operation modes, Dataset generation or Reinforcement Learning environment and it is super easy to install!
+A plugin for GTAV that transforms it into a vision-based self-driving car development environment. It supports two main operation modes, Dataset generation or Reinforcement Learning environment and it is super easy to install!
 
 If you are using this code for research, please email me, I would like to hear more! :)
 
