@@ -6,9 +6,9 @@ If you are using this code for research, please email me, I would like to hear m
 <img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="800px">
 
 ## Installation instructions
-Update GTAV to the last version and just copy-paste the contents of *bin/Release* under your GTAV installation directory and replace your saved game data in *Documents/Rockstar Games/GTA V/Profiles/* with the contents contents of *bin/SaveGame*. Then set the correct dataset destination directory in the *config.ini* file and run the game (story mode). 
+Update GTAV to the last version and just copy-paste the contents of *bin/Release* under your GTAV installation directory and replace your saved game data in *Documents/Rockstar Games/GTA V/Profiles/* with the contents contents of *bin/SaveGame*. Additionaly, download *[paths.xml](https://drive.google.com/open?id=0Bzh5djJlCOmMOTA1RVlOXzZ5dEk)* and store it also in the GTAV installation directory. 
 
-**It will work out-of-the-box, it doesn't require any extra dependencies!**
+**Done! Configure your setup in the *config.ini* file and run the game. It will work out-of-the-box, it doesn't require any extra dependencies!**
 
 ## Common configuration options
 The configuration options of the environment are set through the *config.ini* file, in general a -1 value means randomly generated:
