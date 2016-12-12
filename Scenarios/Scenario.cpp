@@ -105,6 +105,7 @@ void Scenario::step() {
 
 	float delay = ((float)(now - lastSafetyCheck)) / CLOCKS_PER_SEC;
 	if (delay > 10) {
+		lastSafetyCheck = std::clock();
 		//Avoid bad things such as getting killed by the police, robbed, dying in car accidents or other horrible stuff
 		PLAYER::SET_EVERYONE_IGNORE_PLAYER(player, TRUE);
 		PLAYER::SET_POLICE_IGNORE_PLAYER(player, TRUE);
