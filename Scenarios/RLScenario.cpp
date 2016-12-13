@@ -5,15 +5,16 @@ RLScenario::RLScenario(int _car, int _initialWeather, int _weatherChangeDelay, i
 
 //Signal adaptation as input from control is [0,1] for throttle and [0,1] for brake. While in-game capture is [-1,1] for throttle (negative in reverse) and [0,1] for brake.
 void RLScenario::performActions(float throttle, float brake, float steering) {
-	if ((abs(throttle) < 0.1) && (brake > 0.9)) { //Full-stop
+	if (brake > 0.95) { //Full-stop
 		brake = 0.0;
 		VEHICLE::SET_VEHICLE_HANDBRAKE(vehicle, TRUE);
 	}
 	else {
 		VEHICLE::SET_VEHICLE_HANDBRAKE(vehicle, FALSE);
 		if (throttle < 0.0) { //Reverse
+			float tmp = brake;
 			brake = -throttle;
-			throttle = 0.0;
+			throttle = tmp;
 		}
 	}
 
