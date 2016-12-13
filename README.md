@@ -28,13 +28,13 @@ The configuration options of the environment are set through the *config.ini* fi
 See *Scenario.cpp* for more details on the supported values, especially for car, drivingStyle and initialWeather.
 
 ## Dataset generation description
-The in-game screenshots are stored as RGB PNG format, with the specified width and length of the *config.ini* file. These images are named in order of capture from 1 to undefined. Alongside the images, a file named *dataset.txt* contains a new line for each image name, with the labels associated to it separated by spaces. The labels are the following in the same order:
+The in-game screenshots are stored as RGB PNG format, with the specified width and length of the *config.ini* file. These images are named in order of capture from 1 to undefined. Alongside the images, a file named *dataset.txt* contains a row for each image name, with the labels associated to it separated by spaces. The labels are the following, in the same order:
 
 * Speed (m/s)
 * Acceleration (m/s2)
 * Brake pedal position (0 to 1)
 * Steering angle (-1 to 1, left to right)
-* Throttle pedal position (0 to 1)
+* Throttle pedal position (-1 to 1, negative is reverse)
 * Yaw rate (deg/s)
 * Direction (-1 to left, 1 to right)
 
@@ -53,12 +53,12 @@ Also, this mode supports the following extra configurations of *config.ini*:
 * **captureFreq:** Frequency of image and labels capture in Hz (FPS) [integer]
 * **datasetDir:** Absolute path with trailing slash to directory to save the dataset (must exist) [string]
 * **setSpeed:** Set speed of the vehicle in m/s during dataset generation [float]
-* **drivingStyle:** Driving style of the vehicle driver during dataset generation [integer]
+* **drivingStyle:** Driving style of the vehicle driver during dataset generation, -1 is manual mode [integer]
 
 ## Reinforcement learning description
-It is also possible to use DeepGTAV as a reinforcement learning environment. When the game starts, the plugin will try to connect via TCP to any server listening in the specified port (see [VPilot](https://github.com/ai-tor/VPilot) for an example on how a server that communicates with DeepGTAV should be built).
+It is also possible to use DeepGTAV as a reinforcement learning environment. When the game starts, the plugin will try to connect via TCP to any server listening in the specified port (see [VPilot](https://github.com/ai-tor/VPilot) for an example on how a server that communicates with DeepGTAV should be built). Input actions are throttle, brake and steering in this order and should have the same format as the output from the Data Generation mode.
 
-Once it is connected, the plugin will enter in a loop. First it will send the current game state (camera pixels) and wait for the commands as response (throttle, brake and steering). Once the commands are received it will send back the reward as response (a float number between -1 and 1) and so on.
+Once it is connected, the plugin will enter in a loop. First it will send the current game state (camera pixels with the specified with and height) and wait for the actions in return (throttle, brake and steering). Once the commands are received it will send back the reward as response (a float number between -1 and 1) and repeat.
 
 The following extra configurations can be set in *config.ini* for this mode:
 
