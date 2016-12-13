@@ -23,7 +23,6 @@ void RLScenario::performActions(float throttle, float brake, float steering) {
 	CONTROLS::_SET_CONTROL_NORMAL(27, 59, steering); //[-1,1]
 }
 
-//TODO
 float RLScenario::getReward() {
 	return rewarder.computeReward(vehicle);
 }
