@@ -6,7 +6,7 @@ SLScenario::SLScenario(int _car, int _drivingStyle, float _setSpeed, int _initia
 
 	//Starts driving!
 	switch (_drivingStyle) {
-		default:
+		default: break;
 		case 0: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 786603); break; //Normal (typically used by the game)
 		case 1: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 2883621); break; //IgnoreLights
 		case 2: AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, 5); break; //Sometimes Overtake traffic
