@@ -70,8 +70,8 @@ The following extra configurations can be set in *config.ini* for this mode:
 
 Nowadays 3 type of reward functions can be chosen, all of them penalize collisions:
 
-* **Stay in lane (0):** The more centered the better, if the vehicle goes against traffic or gets out of the road the reward will be negative.
-* **Reach speed (1):** Reach and keep a desired speed.
+* **Reach speed (0):** Reach and keep a desired speed.
+* **Stay in lane (1):** The more centered the better, if the vehicle goes against traffic or gets out of the road the reward will be negative.
 * **General (2):** It is a combination of the other two, the vehicle will try to stay in lane while maintaining a certain speed, the agressivity configuration option sets how the two partial rewards are averaged. The more agressivity the more reward will be given for keeping the speed and less to stay in lane (i.e. tendence to overtake other vehicles)
 
 ## TODO
