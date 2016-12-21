@@ -71,12 +71,12 @@ int SLScenario::getVehicleDirection() {
 
 //[0,1]
 float SLScenario::getVehicleThrottlePosition() {
-	return getFloatValue(vehicle, 0x8D4);
+	return getFloatValue(vehicle, 0x8FC);
 }
 
 //[0,1]
 float SLScenario::getVehicleBrakePosition() {
-	return getFloatValue(vehicle, 0x8D8);
+	return getFloatValue(vehicle, 0x900);
 }
 
 //[-1,1]
