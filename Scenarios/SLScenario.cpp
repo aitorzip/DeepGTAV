@@ -81,6 +81,6 @@ float SLScenario::getVehicleBrakePosition() {
 
 //[-1,1]
 float SLScenario::getVehicleSteeringAngle() {
-	return getFloatValue(vehicle, 0x8CC)/-0.7; //TODO: Depends on vehicle?
+	return getFloatValue(vehicle, 0x8F4)/-0.7; //TODO: Depends on vehicle?
 }
 
