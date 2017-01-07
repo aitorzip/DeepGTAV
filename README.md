@@ -75,6 +75,8 @@ Nowadays 3 type of reward functions can be chosen, all of them penalize collisio
 * **General (2):** It is a combination of the other two, the vehicle will try to stay in lane while maintaining a certain speed, the agressivity configuration option sets how the two partial rewards are averaged. The more agressivity the more reward will be given for keeping the speed and less to stay in lane (i.e. tendence to overtake other vehicles)
 
 ## TODO
+* New Online Learning mode
+* Implement target labelling (vehicles, peds animals and hopefully traffic signs and map directions)
 * Find a way to automatically close/restart the game once dataset generation has finished/vehicle is stuck.
 * Bug fixes and improvements.
 
