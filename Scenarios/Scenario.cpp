@@ -88,7 +88,7 @@ Scenario::Scenario(int _car, int _initialWeather, int _weatherChangeDelay, int _
 	rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
 	CAM::DESTROY_ALL_CAMS(TRUE);
 	camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
-	CAM::ATTACH_CAM_TO_ENTITY(camera, vehicle, 0, 0.5, 0.45, TRUE);
+	CAM::ATTACH_CAM_TO_ENTITY(camera, vehicle, 0, 0.5, 0.8, TRUE);
 	CAM::SET_CAM_FOV(camera, 60);
 	CAM::SET_CAM_ACTIVE(camera, TRUE);
 	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
