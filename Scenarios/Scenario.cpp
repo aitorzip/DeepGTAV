@@ -128,7 +128,7 @@ void Scenario::step() {
 
 		// Driving characteristics
 		PED::SET_DRIVER_AGGRESSIVENESS(ped, 0.0);
-		PED::SET_DRIVER_ABILITY(ped, 1.0);
+		PED::SET_DRIVER_ABILITY(ped, 100.0);
 	} else {
 		delay = ((float)(now - lastWeatherChange)) / CLOCKS_PER_SEC;
 		if (delay > weatherChangeDelay) {
