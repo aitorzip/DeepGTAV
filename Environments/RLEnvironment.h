@@ -16,6 +16,7 @@
 class RLEnvironment: public Environment {
 private:
 	UINT8* pixels;
+	BITMAPINFOHEADER info;
 
 	WSADATA wsaData;
 	SOCKET ClientSocket = INVALID_SOCKET;

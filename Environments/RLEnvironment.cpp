@@ -1,9 +1,17 @@
 #include "RLEnvironment.h"
 
-RLEnvironment::RLEnvironment(int _imageWidth, int _imageHeight, const char* agentAddress, const char* agentPort, RLScenario _scenario) : Environment(_imageWidth, _imageHeight, _scenario) {	
+RLEnvironment::RLEnvironment(int _imageWidth, int _imageHeight, const char* agentAddress, const char* agentPort, RLScenario _scenario) : Environment(_imageWidth, _imageHeight, _scenario), info({ 0 }) {
 	pixels = (UINT8*) malloc(imageWidth*imageHeight * 3);
+	info.biSize = sizeof(BITMAPINFOHEADER);
+	info.biPlanes = 1;
+	info.biBitCount = 24;
+	info.biWidth = _imageWidth;
+	info.biHeight = -_imageHeight;
+	info.biCompression = BI_RGB;
+	info.biSizeImage = 0;
+
 	struct addrinfo *ptr, hints;
-	
+
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 	ZeroMemory(&hints, sizeof(hints));
 	hints.ai_family = AF_INET;
@@ -22,10 +30,17 @@ RLEnvironment::~RLEnvironment(){
 
 void RLEnvironment::step() {
 	float actions[3], reward;
+	int offset = 0, r;
+	int buffSize = imageWidth*imageHeight * 3;
+	
 	Environment::step();
-
 	updateState();
-	send(ClientSocket, (const char*)pixels, imageWidth*imageHeight*3, 0);
+
+	while (offset < buffSize) {
+		r = send(ClientSocket, (const char*)(pixels + offset), buffSize - offset, 0);
+		if (r <= 0) break;
+		offset = offset + r;
+	}
 	recv(ClientSocket, (char*) actions, 3*sizeof(float), 0);
 	scenario.performActions(actions[0],actions[1],actions[2]);
 	reward = scenario.getReward();
@@ -34,5 +49,6 @@ void RLEnvironment::step() {
 
 void RLEnvironment::updateState() {
 	StretchBlt(hCaptureDC, 0, 0, imageWidth, imageHeight, hWindowDC, 0, 0, windowWidth, windowHeight, SRCCOPY | CAPTUREBLT);
-	GetBitmapBits(hCaptureBitmap, imageWidth*imageHeight*3, pixels);
+	GetDIBits(hCaptureDC, hCaptureBitmap, 0, imageHeight, pixels, (BITMAPINFO*)&info, DIB_RGB_COLORS);
+
 }
