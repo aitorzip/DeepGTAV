@@ -29,7 +29,7 @@ RLEnvironment::~RLEnvironment(){
 }
 
 void RLEnvironment::step() {
-	float actions[3], reward;
+	float actions[2], reward;
 	int offset = 0, r;
 	int buffSize = imageWidth*imageHeight * 3;
 	
@@ -41,8 +41,8 @@ void RLEnvironment::step() {
 		if (r <= 0) break;
 		offset = offset + r;
 	}
-	recv(ClientSocket, (char*) actions, 3*sizeof(float), 0);
-	scenario.performActions(actions[0],actions[1],actions[2]);
+	recv(ClientSocket, (char*) actions, 2*sizeof(float), 0);
+	scenario.performActions(actions[0], actions[1]);
 	reward = scenario.getReward();
 	send(ClientSocket, (const char*) &reward, sizeof(float), 0);
 }

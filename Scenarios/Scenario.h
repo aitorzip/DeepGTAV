@@ -30,6 +30,6 @@ public:
 	virtual float getVehicleBrakePosition(){ return 0; };
 	virtual float getVehicleSteeringAngle(){ return 0; };
 
-	virtual void performActions(float throttle, float brake, float steering){};
+	virtual void performActions(float throttle, float steering){};
 	virtual float getReward(){ return 0; };
 };
