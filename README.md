@@ -3,7 +3,8 @@ A plugin for GTAV that transforms it into a vision-based self-driving car develo
 
 If you are using this code for research, please email me, I would like to hear more! :)
 
-<img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="900px">
+## Attention! New release coming 03/03/2017
+[![DeepGTAV v2](https://img.youtube.com/vi/StR9tuaIwYw/0.jpg)](https://www.youtube.com/watch?v=StR9tuaIwYw)
 
 ## Installation instructions
 Update GTAV to the last version and just copy-paste the contents of *bin/Release* under your GTAV installation directory and replace your saved game data in *Documents/Rockstar Games/GTA V/Profiles/* with the contents contents of *bin/SaveGame*. Additionaly, download *[paths.xml](https://drive.google.com/open?id=0Bzh5djJlCOmMOTA1RVlOXzZ5dEk)* and store it also in the GTAV installation directory. 
