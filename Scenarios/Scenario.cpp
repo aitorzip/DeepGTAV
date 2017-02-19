@@ -85,13 +85,13 @@ Scenario::Scenario(int _car, int _initialWeather, int _weatherChangeDelay, int _
 	lastSafetyCheck = lastWeatherChange;
 
 	//Puts camera on vehicle
-	rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
+	rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 2);
 	CAM::DESTROY_ALL_CAMS(TRUE);
 	camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
 	CAM::ATTACH_CAM_TO_ENTITY(camera, vehicle, 0, 0.5, 0.8, TRUE);
 	CAM::SET_CAM_FOV(camera, 60);
 	CAM::SET_CAM_ACTIVE(camera, TRUE);
-	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
+	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 2);
 	CAM::SET_CAM_INHERIT_ROLL_VEHICLE(camera, TRUE);
 	CAM::RENDER_SCRIPT_CAMS(TRUE, FALSE, 0, TRUE, TRUE);
 }
@@ -100,8 +100,8 @@ Scenario::Scenario(int _car, int _initialWeather, int _weatherChangeDelay, int _
 void Scenario::step() {
 	std::clock_t now = std::clock();
 
-	Vector3 rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
-	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
+	Vector3 rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 2);
+	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 2);
 
 	float delay = ((float)(now - lastSafetyCheck)) / CLOCKS_PER_SEC;
 	if (delay > 10) {
