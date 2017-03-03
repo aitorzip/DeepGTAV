@@ -34,9 +34,28 @@ Here follows an example of the *Start* message:
 ```json
 {"start": {
   "scenario": {
-  
+    "location": [1015.6, 736.8],
+    "time": [22, null],
+    "weather": "RAIN",
+    "vehicle": null,
+    "drivingMode": [1074528293, 15.0]
   },
   "dataset": {
+    "rate": 20,
+    "frame": [227, 227],
+    "vehicles": true,
+    "peds": false,
+    "trafficSigns": null,
+    "direction": [1234.8, 354.3, 0],
+    "reward": [15.0, 0.5],
+    "throttle": true,
+    "brake": true,
+    "steering": true,
+    "speed": null,
+    "yawRate": false,
+    "drivingMode": null,
+    "location": null,
+    "time": false    
   }
 }}
 ```
@@ -50,11 +69,30 @@ This message allows to change at any moment during DeepGTAV's execution, the ini
 
 Here follows an example of the *Config* message (identical to the *Start* message):
 ```json
-{"config": {
+{"start": {
   "scenario": {
-  
+    "location": [1015.6, 736.8],
+    "time": null,
+    "weather": "SUNNY",
+    "vehicle": null,
+    "drivingMode": -1
   },
   "dataset": {
+    "rate": null,
+    "frame": null,
+    "vehicles": false,
+    "peds": true,
+    "trafficSigns": null,
+    "direction": null,
+    "reward": null,
+    "throttle": null,
+    "brake": false,
+    "steering": false,
+    "speed": true,
+    "yawRate": null,
+    "drivingMode": null,
+    "location": null,
+    "time": true   
   }
 }}
 ```
