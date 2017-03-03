@@ -85,3 +85,13 @@ Here follows an example of the *Stop* message:
 
 ### Frame
 ### Data
+
+## Reporting issues and TODOs
+
+DeepGTAV generates a useful log file named *deepgtav.log* in GTAV's installation directory. Please attach it in your issue when reporting any bug.
+
+TODO:
+* Improve code quality (a lot!)
+* Add support for traffic signs detection
+* Add support for driving mode override
+* General bug fixing
