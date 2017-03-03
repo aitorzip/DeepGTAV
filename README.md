@@ -46,7 +46,7 @@ The dataset field specifies the data we want back from the game. If any of its f
 
 ### Config
 
-This message allows to change at any moment during DeepGTAV execution, the initial configuration set by the *Start* message.
+This message allows to change at any moment during DeepGTAV's execution, the initial configuration set by the *Start* message.
 
 Here follows an example of the *Config* message (identical to the *Start* message):
 ```json
@@ -62,7 +62,7 @@ In this case, if any field is null or invalid, the previous configuration is kep
 
 ### Commands
 
-As simple as it seems, this message can be sent at any moment during DeepGTAV execution to control the vehicle. Note that you will only be able to control the vehicle if *drivingMode* is set to manual.
+As simple as it seems, this message can be sent at any moment during DeepGTAV's execution to control the vehicle. Note that you will only be able to control the vehicle if *drivingMode* is set to manual.
 
 Here follows an example of the *Commands* message:
 ```json
@@ -90,7 +90,7 @@ Here follows an example of the *Stop* message:
 
 DeepGTAV generates a useful log file named *deepgtav.log* in GTAV's installation directory. Please attach it in your issue when reporting any bug.
 
-TODO:
+__TODO:__
 * Improve code quality (a lot!)
 * Add support for traffic signs detection
 * Add support for driving mode override
