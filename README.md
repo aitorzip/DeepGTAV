@@ -30,33 +30,33 @@ This is the message that needs to be sent to start DeepGTAV, any other message s
 
 Here follows an example of the Start message:
 ```json
-{"start":
+{"start": {
   "scenario": {
   
   },
   "dataset": {
   }
-}
+}}
 ```
 
 
 ### Config
 ```json
-{"config":
+{"config": {
   "scenario": {
   
   },
   "dataset": {
   }
-}
+}}
 ```
 ### Commands
 ```json
-{"commands":
+{"commands": {
   "throttle": 1.0,
   "brake": 0.0,
   "steering": -0.5
-}
+}}
 ```
 ### Stop
 ```json
