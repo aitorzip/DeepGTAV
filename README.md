@@ -29,7 +29,7 @@ The following chapters describe the purpose and contents of each message.
 This is the message that needs to be sent to start DeepGTAV, any other message sent prior to this won't make any effect. Along with this message, several configuration parameters can be set to start DeepGTAV with the desired initial conditions and requested data transmission.
 
 Here follows an example of the Start message:
-```
+```json
 {"start":
   "scenario": {
   
@@ -41,7 +41,7 @@ Here follows an example of the Start message:
 
 
 ### Config
-```
+```json
 {"config":
   "scenario": {
   
@@ -51,7 +51,7 @@ Here follows an example of the Start message:
 }
 ```
 ### Commands
-```
+```json
 {"commands":
   "throttle": 1.0,
   "brake": 0.0,
@@ -59,7 +59,7 @@ Here follows an example of the Start message:
 }
 ```
 ### Stop
-```
+```json
 {"stop": {}}
 ```
 ## Messages from DeepGTAV to the client
