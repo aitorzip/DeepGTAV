@@ -26,9 +26,11 @@ The following chapters describe the purpose and contents of each message.
 
 ### Start
 
-This is the message that needs to be sent to start DeepGTAV, any other message sent prior to this won't make any effect. Along with this message, several configuration parameters can be set to start DeepGTAV with the desired initial conditions and requested data transmission.
+This is the message that needs to be sent to start DeepGTAV, any other message sent prior to this won't make any effect. Along with this message, several fields can be set to start DeepGTAV with the desired initial conditions and requested *Data* transmission. 
 
-Here follows an example of the Start message:
+When this message is sent the environment starts, the game camera is set to the front center of the vehicle and *Data* starts being sent back to the client until the client is disconnected or an *Stop* message is received
+
+Here follows an example of the *Start* message:
 ```json
 {"start": {
   "scenario": {
@@ -38,9 +40,15 @@ Here follows an example of the Start message:
   }
 }}
 ```
+The scenario field specifies the desired intitial conditions for the environment. If any of its fields or itself is null or invalid the relevant configuration will be randomly set.
 
+The dataset field specifies the data we want back from the game. If any of its fields or itself is null or invalid, the relevant *Data* field will be deactivated, except for the frame rate and dimensions, which will be set to 10 Hz and 320x160 by default.
 
 ### Config
+
+This message allows to change at any moment during DeepGTAV execution, the initial configuration set by the *Start* message.
+
+Here follows an example of the *Config* message (identical to the *Start* message):
 ```json
 {"config": {
   "scenario": {
@@ -50,7 +58,11 @@ Here follows an example of the Start message:
   }
 }}
 ```
+In this case, if any field is null or invalid, the previous configuration is kept. Otherwise the configuration is overriden.
+
 ### Commands
+
+As simple as it seems, this message can be sent at any moment during DeepGTAV execution to control the vehicle. Note that you will only be able to control the vehicle if *drivingMode* is set to manual.
 ```json
 {"commands": {
   "throttle": 1.0,
@@ -58,10 +70,14 @@ Here follows an example of the Start message:
   "steering": -0.5
 }}
 ```
+
 ### Stop
+
+Stops the environment and allows the user to go back to the normal gameplay.
 ```json
 {"stop": {}}
 ```
 ## Messages from DeepGTAV to the client
 
+### Frame
 ### Data
