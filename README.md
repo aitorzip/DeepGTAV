@@ -1,6 +1,8 @@
 # DeepGTAV v2
 
-*Documentation under construction*.
+*A plugin for GTAV that transforms it into a vision-based self-driving car research environment.*
+
+<img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="900px">
 
 ## Installation
 1. Download, install and update GTAV to the last version
