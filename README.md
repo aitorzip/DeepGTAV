@@ -74,7 +74,7 @@ Here follows an example of the *Config* message (identical to the *Start* messag
     "location": [1015.6, 736.8],
     "time": null,
     "weather": "SUNNY",
-    "vehicle": null,
+    "vehicle": "voltic",
     "drivingMode": -1
   },
   "dataset": {
