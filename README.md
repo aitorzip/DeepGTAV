@@ -58,11 +58,13 @@ Here follows an example of the *Config* message (identical to the *Start* messag
   }
 }}
 ```
-In this case, if any field is null or invalid, the previous configuration is kept. Otherwise the configuration is overriden.
+In this case, if any field is null or invalid, the previous configuration is kept. Otherwise the configuration is overrided.
 
 ### Commands
 
 As simple as it seems, this message can be sent at any moment during DeepGTAV execution to control the vehicle. Note that you will only be able to control the vehicle if *drivingMode* is set to manual.
+
+Here follows an example of the *Commands* message:
 ```json
 {"commands": {
   "throttle": 1.0,
@@ -73,7 +75,9 @@ As simple as it seems, this message can be sent at any moment during DeepGTAV ex
 
 ### Stop
 
-Stops the environment and allows the user to go back to the normal gameplay.
+Stops the environment and allows the user to go back to the normal gameplay. Simply disconnecting the client produces the same effect.
+
+Here follows an example of the *Stop* message:
 ```json
 {"stop": {}}
 ```
