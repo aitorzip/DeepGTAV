@@ -1,4 +1,4 @@
-# DeepGTAV
+# DeepGTAV v2
 
 *Documentation under construction*.
 
@@ -25,10 +25,43 @@ The following chapters describe the purpose and contents of each message.
 ## Messages from the client to DeepGTAV
 
 ### Start
-### Config
-### Commands
-### Stop
 
+This is the message that needs to be sent to start DeepGTAV, any other message sent prior to this won't make any effect. Along with this message, several configuration parameters can be set to start DeepGTAV with the desired initial conditions and requested data transmission.
+
+Here follows an example of the Start message:
+```
+{"start":
+  "scenario": {
+  
+  },
+  "dataset": {
+  }
+}
+```
+
+
+### Config
+```
+{"config":
+  "scenario": {
+  
+  },
+  "dataset": {
+  }
+}
+```
+### Commands
+```
+{"commands":
+  "throttle": 1.0,
+  "brake": 0.0,
+  "steering": -0.5
+}
+```
+### Stop
+```
+{"stop": {}}
+```
 ## Messages from DeepGTAV to the client
 
 ### Data
