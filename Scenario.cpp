@@ -10,7 +10,7 @@ void Scenario::start(const Value& sc, const Value& dc) {
 	if (running) return;
 
 	const char* weatherList[] = { "CLEAR", "EXTRASUNNY", "CLOUDS", "OVERCAST", "RAIN", "CLEARING", "THUNDER", "SMOG", "FOGGY", "XMAS", "SNOWLIGHT", "BLIZZARD", "NEUTRAL", "SNOW" };
-	const char* vehicleList[] = { "blista", "voltic" };
+	const char* vehicleList[] = { "blista", "voltic", "packer" };
 	float x, y, heading;
 	int hour, minute, width, height;
 	const char* _weather;
@@ -109,7 +109,7 @@ void Scenario::start(const Value& sc, const Value& dc) {
 	if (weather.IsNull()) _weather = weatherList[rand() % 14];
 	else _weather = weather.GetString();
 
-	if (vehicle.IsNull()) _vehicle = vehicleList[rand() % 2];
+	if (vehicle.IsNull()) _vehicle = vehicleList[rand() % 3];
 	else _vehicle = vehicle.GetString();
 
 	if (drivingMode.IsNull()) {
@@ -159,7 +159,8 @@ void Scenario::start(const Value& sc, const Value& dc) {
 	rotation = ENTITY::GET_ENTITY_ROTATION(this->vehicle, 1);
 	CAM::DESTROY_ALL_CAMS(TRUE);
 	camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
-	CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
+	if (strcmp(_vehicle, "packer") == 0) CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
+	else CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 1.6, TRUE);
 	CAM::SET_CAM_FOV(camera, 60);
 	CAM::SET_CAM_ACTIVE(camera, TRUE);
 	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
@@ -199,7 +200,7 @@ void Scenario::config(const Value& sc, const Value& dc) {
 	if (!running) return;
 
 	const char* weatherList[] = { "CLEAR", "EXTRASUNNY", "CLOUDS", "OVERCAST", "RAIN", "CLEARING", "THUNDER", "SMOG", "FOGGY", "XMAS", "SNOWLIGHT", "BLIZZARD", "NEUTRAL", "SNOW" };
-	const char* vehicleList[] = { "blista", "voltic" };
+	const char* vehicleList[] = { "blista", "voltic", "packer" };
 	float x, y, heading;
 	int hour, minute, _drivingMode, width, height;
 	const char* _weather;
@@ -293,7 +294,8 @@ void Scenario::config(const Value& sc, const Value& dc) {
 		rotation = ENTITY::GET_ENTITY_ROTATION(this->vehicle, 1);
 		CAM::DESTROY_ALL_CAMS(TRUE);
 		camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
-		CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
+		if (strcmp(_vehicle, "packer") == 0) CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
+		else CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 1.6, TRUE);
 		CAM::SET_CAM_FOV(camera, 60);
 		CAM::SET_CAM_ACTIVE(camera, TRUE);
 		CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
