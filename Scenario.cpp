@@ -499,15 +499,15 @@ void Scenario::setVehiclesList() {
 					dim.y = 0.5*(max.y - min.y);
 					dim.z = 0.5*(max.z - min.z);
 
-					FUR.x = position.x + dim.y*rightVector.x + dim.x*forwardVector.x + dim.z*upVector.x;
-					FUR.y = position.y + dim.y*rightVector.y + dim.x*forwardVector.y + dim.z*upVector.y;
-					FUR.z = position.z + dim.y*rightVector.z + dim.x*forwardVector.z + dim.z*upVector.z;
+					FUR.x = position.x + max.y*rightVector.x + max.x*forwardVector.x + max.z*upVector.x;
+					FUR.y = position.y + max.y*rightVector.y + max.x*forwardVector.y + max.z*upVector.y;
+					FUR.z = position.z + max.y*rightVector.z + max.x*forwardVector.z + max.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(FUR.x, FUR.y, FUR.z, &(FUR.z), 0);
 					//FUR.z += 2 * dim.z;
 
-					BLL.x = position.x - dim.y*rightVector.x - dim.x*forwardVector.x - dim.z*upVector.x;
-					BLL.y = position.y - dim.y*rightVector.y - dim.x*forwardVector.y - dim.z*upVector.y;
-					BLL.z = position.z - dim.y*rightVector.z - dim.x*forwardVector.z - dim.z*upVector.z;
+					BLL.x = position.x + min.y*rightVector.x + min.x*forwardVector.x + min.z*upVector.x;
+					BLL.y = position.y + min.y*rightVector.y + min.x*forwardVector.y + min.z*upVector.y;
+					BLL.z = position.z + min.y*rightVector.z + min.x*forwardVector.z + min.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(BLL.x, BLL.y, 1000.0, &(BLL.z), 0);
 
 					Value _vehicle(kObjectType);
@@ -628,15 +628,15 @@ void Scenario::setPedsList(){
 					dim.y = 0.5*(max.y - min.y);
 					dim.z = 0.5*(max.z - min.z);
 
-					FUR.x = position.x + dim.y*rightVector.x + dim.x*forwardVector.x + dim.z*upVector.x;
-					FUR.y = position.y + dim.y*rightVector.y + dim.x*forwardVector.y + dim.z*upVector.y;
-					FUR.z = position.z + dim.y*rightVector.z + dim.x*forwardVector.z + dim.z*upVector.z;
+					FUR.x = position.x + max.y*rightVector.x + max.x*forwardVector.x + max.z*upVector.x;
+					FUR.y = position.y + max.y*rightVector.y + max.x*forwardVector.y + max.z*upVector.y;
+					FUR.z = position.z + max.y*rightVector.z + max.x*forwardVector.z + max.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(FUR.x, FUR.y, 1000.0, &(FUR.z), 0);
 					//FUR.z += 2 * dim.z;
 
-					BLL.x = position.x - dim.y*rightVector.x - dim.x*forwardVector.x - dim.z*upVector.x;
-					BLL.y = position.y - dim.y*rightVector.y - dim.x*forwardVector.y - dim.z*upVector.y;
-					BLL.z = position.z - dim.y*rightVector.z - dim.x*forwardVector.z - dim.z*upVector.z;
+					BLL.x = position.x + min.y*rightVector.x + min.x*forwardVector.x + min.z*upVector.x;
+					BLL.y = position.y + min.y*rightVector.y + min.x*forwardVector.y + min.z*upVector.y;
+					BLL.z = position.z + min.y*rightVector.z + min.x*forwardVector.z + min.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(BLL.x, BLL.y, 1000.0, &(BLL.z), 0);
 
 					Value _ped(kObjectType);
