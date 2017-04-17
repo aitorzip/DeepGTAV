@@ -5,7 +5,9 @@
 ScreenCapturer::ScreenCapturer(int frameWidth, int frameHeight){
 	imageWidth = frameWidth;
 	imageHeight = frameHeight;
-	length = imageWidth*imageHeight * 3;
+	// Round up the scan line size to a multiple of 4
+	int imageStride = (imageWidth * 3 + 3) / 4 * 4;
+	length = imageStride * imageHeight;
 
 	//Screen capture buffer
 	GRAPHICS::_GET_SCREEN_ACTIVE_RESOLUTION(&windowWidth, &windowHeight);
