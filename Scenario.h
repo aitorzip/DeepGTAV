@@ -37,6 +37,7 @@ private:
 	bool drivingMode; //TODO
 	bool location;
 	bool time;
+    bool bbox;
 
 	float currentThrottle = 0.0;
 	float currentBrake = 0.0;
@@ -59,7 +60,7 @@ public:
 	void setCommands(float throttle, float brake, float steering);
 	void run();
 
-	ScreenCapturer* screenCapturer;
+	ScreenCapturer* screenCapturer = nullptr;
 	StringBuffer generateMessage();
 
 private:
