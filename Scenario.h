@@ -38,6 +38,7 @@ private:
 	bool location;
 	bool time;
     bool bbox;
+    bool drawDebug;
 
 	float currentThrottle = 0.0;
 	float currentBrake = 0.0;
