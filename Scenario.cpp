@@ -453,7 +453,7 @@ Eigen::Vector3f rotate(Eigen::Vector3f a, Eigen::Vector3f theta)
     return d;
 }
 
-static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen::Vector3f& cam_coords, const Eigen::Vector3f& cam_rotation, float cam_near_clip, float cam_field_of_view, bool draw_debug = true){
+static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen::Vector3f& cam_coords, const Eigen::Vector3f& cam_rotation, float cam_near_clip, float cam_field_of_view, bool draw_debug = false){
     // Inspired by Artur Filopowicz: Video Games for Autonomous Driving: https://github.com/arturf1/GTA5-Scripts/blob/master/Annotator.cs#L379
 
     static const Eigen::Vector3f WORLD_NORTH(0.0, 1.0, 0.0);
@@ -491,7 +491,7 @@ static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen
     }
     Eigen::Vector3f camera_to_target_unit_vector = camera_to_target * (1. / camera_to_target.norm()); // Unit vector in direction of plane / line intersection
 
-    double view_plan_dist = cam_near_clip / cam_dir.dot(camera_to_target_unit_vector);
+    double view_plane_dist = cam_near_clip / cam_dir.dot(camera_to_target_unit_vector);
 
     Eigen::Vector3f up3d, forward3d, right3d;
     up3d = rotate(WORLD_UP, cam_rotation);
@@ -524,7 +524,7 @@ static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen
 
     if (use_artur_method)
     {
-        Eigen::Vector3f view_plane_point = view_plan_dist * camera_to_target_unit_vector + camera_center;
+        Eigen::Vector3f view_plane_point = view_plane_dist * camera_to_target_unit_vector + camera_center;
         view_plane_point = (view_plane_point + clip_plane_center) - new_origin;
         double viewPlaneX = view_plane_point.dot(cam_east) / cam_east.dot(cam_east);
         double viewPlaneZ = view_plane_point.dot(cam_up) / cam_up.dot(cam_up);
@@ -534,7 +534,7 @@ static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen
     }
     else
     {
-        auto intersection = cam_coords + view_plan_dist * camera_to_target_unit_vector;
+        auto intersection = cam_coords + view_plane_dist * camera_to_target_unit_vector;
         auto center_to_intersection = clip_plane_center - intersection;
         auto x_dist = center_to_intersection.dot(right3d);
         auto z_dist = center_to_intersection.dot(up3d);
@@ -546,7 +546,14 @@ static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen
 }
 
 static const std::vector<Eigen::Vector3f> coefficients = {
-    {-0.5, -0.5, -0.5}, {0.5,-0.5,-0.5},{ 0.5,0.5,-0.5 },{ -0.5,0.5,-0.5 },{ -0.5, -0.5, 0.5 },{ 0.5,-0.5,0.5 },{ 0.5,0.5,0.5 },{ -0.5,0.5,0.5 }
+    {-0.5, -0.5,-0.5}, 
+    { 0.5, -0.5,-0.5},
+    { 0.5,  0.5, 0.5},
+    {-0.5,  0.5,-0.5},
+    {-0.5, -0.5, 0.5},
+    { 0.5, -0.5, 0.5},
+    { 0.5,  0.5, 0.5},
+    {-0.5,  0.5, 0.5}
 };
 
 
@@ -641,7 +648,7 @@ void Scenario::setVehiclesList() {
                     R.col(1) = Eigen::Vector3f(rightVector.x, rightVector.y, rightVector.z);
                     R.col(2) = Eigen::Vector3f(upVector.x, upVector.y, upVector.z);
                     for(int i = 0; i < 8; ++i){
-                        Eigen::Vector3f pt = Eigen::Vector3f(position.x, position.y, position.z) + R*Eigen::Vector3f(dim.x, dim.y, dim.z).cwiseProduct(coefficients[i]);
+                        Eigen::Vector3f pt = Eigen::Vector3f(position.x, position.y, position.z) + R*Eigen::Vector3f(dim.x, dim.y, dim.z).cwiseProduct(2*coefficients[i]);
                         Eigen::Vector2f uv = get_2d_from_3d(pt, 
                                                             Eigen::Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), 
                                                             Eigen::Vector3f(theta.x, theta.y, theta.z), near_clip, fov);
@@ -659,7 +666,7 @@ void Scenario::setVehiclesList() {
 
                     _vehicles.PushBack(_vehicle, allocator);
 
-					//#ifdef DEBUG
+					
 					Vector3 edge1 = BLL;
 					Vector3 edge2;
 					Vector3 edge3;
@@ -707,7 +714,7 @@ void Scenario::setVehiclesList() {
 					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
 					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 0, 255, 0, 200);
 					GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 0, 255, 0, 200);
-					//#endif
+					
 
 				}
 			}
@@ -798,7 +805,7 @@ void Scenario::setPedsList(){
                     R.col(1) = Eigen::Vector3f(rightVector.x, rightVector.y, rightVector.z);
                     R.col(2) = Eigen::Vector3f(upVector.x, upVector.y, upVector.z);
                     for (int i = 0; i < 8; ++i) {
-                        Eigen::Vector3f pt = Eigen::Vector3f(position.x, position.y, position.z) + R*Eigen::Vector3f(dim.x, dim.y, dim.z).cwiseProduct(coefficients[i]);
+                        Eigen::Vector3f pt = Eigen::Vector3f(position.x, position.y, position.z) + R*Eigen::Vector3f(dim.x, dim.y, dim.z).cwiseProduct(2*coefficients[i]);
                         Eigen::Vector2f uv = get_2d_from_3d(pt,
                             Eigen::Vector3f(cam_pos.x, cam_pos.y, cam_pos.z),
                             Eigen::Vector3f(theta.x, theta.y, theta.z), near_clip, fov);
@@ -816,7 +823,7 @@ void Scenario::setPedsList(){
 
 					_peds.PushBack(_ped, allocator);
 
-					//#ifdef DEBUG
+					
 					Vector3 edge1 = BLL;
 					Vector3 edge2;
 					Vector3 edge3;
@@ -864,7 +871,7 @@ void Scenario::setPedsList(){
 					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
 					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 255, 0, 0, 200);
 					GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 255, 0, 0, 200);
-					//#endif
+					
 
 				}
 			}
