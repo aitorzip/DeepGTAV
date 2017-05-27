@@ -5,7 +5,6 @@
 #include "Rewarders\LaneRewarder.h"
 #include "Rewarders\SpeedRewarder.h"
 #include <time.h>
-#include <Eigen/Core>
 
 void Scenario::start(const Value& sc, const Value& dc) {
 	if (running) return;
@@ -78,11 +77,6 @@ void Scenario::start(const Value& sc, const Value& dc) {
 	else location = dc["location"].GetBool();
 	if (dc["time"].IsNull()) time = false;
 	else time = dc["time"].GetBool();
-    if(dc["bbox"].IsNull()) bbox = false;
-    else bbox = dc["bbox"].GetBool();
-    if(dc["drawDebug"].IsNull()) drawDebug = false;
-    else drawDebug = dc["drawDebug"].GetBool();
-
 
 	const Value& location = sc["location"];
 	const Value& time = sc["time"];
@@ -252,9 +246,8 @@ void Scenario::config(const Value& sc, const Value& dc) {
 	if (!dc["yawRate"].IsNull()) yawRate = dc["yawRate"].GetBool();
 	if (!dc["drivingMode"].IsNull()) drivingMode = dc["drivingMode"].GetBool();
 	if (!dc["location"].IsNull()) location = dc["location"].GetBool();
-	if (!dc["time"].IsNull())  time = dc["time"].GetBool();
-    if (!dc["bbox"].IsNull())  bbox = dc["bbox"].GetBool(); else bbox = true;
-    if (!dc["drawDebug"].IsNull()) drawDebug = dc["drawDebug"].GetBool(); else drawDebug = false;
+	if (!dc["time"].IsNull()) time = dc["time"].GetBool();
+
 	const Value& location = sc["location"];
 	const Value& time = sc["time"];
 	const Value& weather = sc["weather"];
@@ -448,121 +441,6 @@ StringBuffer Scenario::generateMessage() {
 
 	return buffer;
 }
-Eigen::Vector3f rotate(Eigen::Vector3f a, Eigen::Vector3f theta)
-{
-    Eigen::Vector3f d;
-
-    d(0) = (float)cos((double)theta(2))*((float)cos((double)theta(1))*a(0) + (float)sin((double)theta(1))*((float)sin((double)theta(0))*a(1) + (float)cos((double)theta(0))*a(2))) - (float)sin((double)theta(2))*((float)cos((double)theta(0))*a(1) - (float)sin((double)theta(0))*a(2));
-    d(1) = (float)sin((double)theta(2))*((float)cos((double)theta(1))*a(0) + (float)sin((double)theta(1))*((float)sin((double)theta(0))*a(1) + (float)cos((double)theta(0))*a(2))) + (float)cos((double)theta(2))*((float)cos((double)theta(0))*a(1) - (float)sin((double)theta(0))*a(2));
-    d(2) = -(float)sin((double)theta(1))*a(0) + (float)cos((double)theta(1))*((float)sin((double)theta(0))*a(1) + (float)cos((double)theta(0))*a(2));
-
-    return d;
-}
-
-static Eigen::Vector2f get_2d_from_3d(const Eigen::Vector3f& vertex, const Eigen::Vector3f& cam_coords, const Eigen::Vector3f& cam_rotation, float cam_near_clip, float cam_field_of_view, bool draw_debug = false){
-    // Inspired by Artur Filopowicz: Video Games for Autonomous Driving: https://github.com/arturf1/GTA5-Scripts/blob/master/Annotator.cs#L379
-
-    static const Eigen::Vector3f WORLD_NORTH(0.0, 1.0, 0.0);
-    static const Eigen::Vector3f WORLD_UP(0.0, 0.0, 1.0);
-    static const Eigen::Vector3f WORLD_EAST(1.0, 0.0, 0.0);
-    Eigen::Vector3f theta = (3.14159 / 180.0) * cam_rotation;
-    auto cam_dir = rotate(WORLD_NORTH, theta);
-    if (draw_debug)
-    {
-        auto cam_dir_line_end = cam_dir + cam_coords;
-
-        GRAPHICS::DRAW_LINE(cam_coords.x(), cam_coords.y(), cam_coords.z(), cam_dir_line_end.x(), cam_dir_line_end.y(), cam_dir_line_end.z(), 0, 255, 0, 200);
-    }
-    auto clip_plane_center = cam_coords + cam_near_clip * cam_dir;
-    auto camera_center = -cam_near_clip * cam_dir;
-    auto near_clip_height = 2 * cam_near_clip * tan(cam_field_of_view / 2. * (3.14159 / 180.)); // field of view is returned vertically
-    auto near_clip_width = near_clip_height * GRAPHICS::_GET_SCREEN_ASPECT_RATIO(false);
-
-    const Eigen::Vector3f cam_up = rotate(WORLD_UP, theta);
-    const Eigen::Vector3f cam_east = rotate(WORLD_EAST, theta);
-    const Eigen::Vector3f near_clip_to_target = vertex - clip_plane_center; // del
-
-    Eigen::Vector3f camera_to_target = near_clip_to_target - camera_center; // Total distance - subtracting a negative to add clip distance
-
-    if (draw_debug)
-    {
-        auto cam_up_end_line = cam_up + cam_coords;
-        GRAPHICS::DRAW_LINE(cam_coords.x(), cam_coords.y(), cam_coords.z(), cam_up_end_line.x(), cam_up_end_line.y(), cam_up_end_line.z(), 100, 100, 255, 200);
-        auto cam_east_end_line = cam_up + cam_coords;
-        GRAPHICS::DRAW_LINE(cam_coords.x(), cam_coords.y(), cam_coords.z(), cam_east_end_line.x(), cam_east_end_line.y(), cam_east_end_line.z(), 100, 100, 255, 200);
-        auto del_draw = cam_coords + near_clip_to_target;
-        GRAPHICS::DRAW_LINE(clip_plane_center.x(), clip_plane_center.y(), clip_plane_center.z(), del_draw.x(), del_draw.y(), del_draw.z(), 255, 255, 100, 255);
-        auto viewerDistDraw = cam_coords + camera_to_target;
-        GRAPHICS::DRAW_LINE(cam_coords.x(), cam_coords.y(), cam_coords.z(), viewerDistDraw.x(), viewerDistDraw.y(), viewerDistDraw.z(), 255, 100, 100, 255);
-    }
-    Eigen::Vector3f camera_to_target_unit_vector = camera_to_target * (1. / camera_to_target.norm()); // Unit vector in direction of plane / line intersection
-
-    double view_plane_dist = cam_near_clip / cam_dir.dot(camera_to_target_unit_vector);
-
-    Eigen::Vector3f up3d, forward3d, right3d;
-    up3d = rotate(WORLD_UP, cam_rotation);
-    right3d = rotate(WORLD_EAST, cam_rotation);
-    forward3d = rotate(WORLD_NORTH, cam_rotation);
-    Eigen::Vector3f new_origin = clip_plane_center + (near_clip_height / 2.) * cam_up - (near_clip_width / 2.) * cam_east;
-
-    if (draw_debug)
-    {
-        auto top_right = new_origin + near_clip_width * right3d;
-
-        GRAPHICS::DRAW_LINE(new_origin.x(), new_origin.y(), new_origin.z(), top_right.x(), top_right.y(), top_right.z(), 100, 255, 100, 255);
-
-
-
-        auto bottom_right = top_right - near_clip_height * up3d;
-
-        GRAPHICS::DRAW_LINE(bottom_right.x(), bottom_right.y(), bottom_right.z(), top_right.x(), top_right.y(), top_right.z(), 100, 255, 100, 255);
-
-
-
-        auto bottom_left = bottom_right - near_clip_width * right3d;
-
-        GRAPHICS::DRAW_LINE(bottom_right.x(), bottom_right.y(), bottom_right.z(), bottom_left.x(), bottom_left.y(), bottom_left.z(), 100, 255, 100, 255);
-        GRAPHICS::DRAW_LINE(bottom_left.x(), bottom_left.y(), bottom_left.z(), new_origin.x(), new_origin.y(), new_origin.z(), 100, 255, 100, 255);
-    }
-    Eigen::Vector2f ret;
-
-    bool use_artur_method = true;
-
-    if (use_artur_method)
-    {
-        Eigen::Vector3f view_plane_point = view_plane_dist * camera_to_target_unit_vector + camera_center;
-        view_plane_point = (view_plane_point + clip_plane_center) - new_origin;
-        double viewPlaneX = view_plane_point.dot(cam_east) / cam_east.dot(cam_east);
-        double viewPlaneZ = view_plane_point.dot(cam_up) / cam_up.dot(cam_up);
-        double screenX = viewPlaneX / near_clip_width;
-        double screenY = -viewPlaneZ / near_clip_height;
-        ret = { screenX, screenY };
-    }
-    else
-    {
-        auto intersection = cam_coords + view_plane_dist * camera_to_target_unit_vector;
-        auto center_to_intersection = clip_plane_center - intersection;
-        auto x_dist = center_to_intersection.dot(right3d);
-        auto z_dist = center_to_intersection.dot(up3d);
-        auto screen_x = 1. - (near_clip_width / 2. + x_dist) / near_clip_width;
-        auto screen_y = (near_clip_height / 2. + z_dist) / near_clip_height;
-        ret = { screen_x, screen_y };
-    }
-    return ret;
-}
-
-static const std::vector<Eigen::Vector3f> coefficients = {
-    {-0.5, -0.5,-0.5}, 
-    { 0.5, -0.5,-0.5},
-    { 0.5,  0.5, 0.5},
-    {-0.5,  0.5,-0.5},
-    {-0.5, -0.5, 0.5},
-    { 0.5, -0.5, 0.5},
-    { 0.5,  0.5, 0.5},
-    {-0.5,  0.5, 0.5}
-};
-
-
 
 void Scenario::setVehiclesList() {
 	const int ARR_SIZE = 1024;
@@ -583,10 +461,7 @@ void Scenario::setVehiclesList() {
 
 	Vector3 currentPos = ENTITY::GET_ENTITY_COORDS(vehicle, false);
 	Vector3 currentForwardVector = ENTITY::GET_ENTITY_FORWARD_VECTOR(vehicle);
-    Vector3 theta = CAM::GET_CAM_ROT(camera, 0);
-    Vector3 cam_pos = CAM::GET_CAM_COORD(camera);
-    float fov = CAM::GET_CAM_FOV(camera);
-    float near_clip = CAM::GET_CAM_NEAR_CLIP(camera);
+
 	int count = worldGetAllVehicles(vehicles, ARR_SIZE);
 	for (int i = 0; i < count; i++) {
 		if (vehicles[i] == vehicle) continue; //Don't process own car!
@@ -624,15 +499,15 @@ void Scenario::setVehiclesList() {
 					dim.y = 0.5*(max.y - min.y);
 					dim.z = 0.5*(max.z - min.z);
 
-					FUR.x = position.x + max.y*rightVector.x + max.x*forwardVector.x + max.z*upVector.x;
-					FUR.y = position.y + max.y*rightVector.y + max.x*forwardVector.y + max.z*upVector.y;
-					FUR.z = position.z + max.y*rightVector.z + max.x*forwardVector.z + max.z*upVector.z;
+					FUR.x = position.x + dim.y*rightVector.x + dim.x*forwardVector.x + dim.z*upVector.x;
+					FUR.y = position.y + dim.y*rightVector.y + dim.x*forwardVector.y + dim.z*upVector.y;
+					FUR.z = position.z + dim.y*rightVector.z + dim.x*forwardVector.z + dim.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(FUR.x, FUR.y, FUR.z, &(FUR.z), 0);
 					//FUR.z += 2 * dim.z;
 
-					BLL.x = position.x + min.y*rightVector.x + min.x*forwardVector.x + min.z*upVector.x;
-					BLL.y = position.y + min.y*rightVector.y + min.x*forwardVector.y + min.z*upVector.y;
-					BLL.z = position.z + min.y*rightVector.z + min.x*forwardVector.z + min.z*upVector.z;
+					BLL.x = position.x - dim.y*rightVector.x - dim.x*forwardVector.x - dim.z*upVector.x;
+					BLL.y = position.y - dim.y*rightVector.y - dim.x*forwardVector.y - dim.z*upVector.y;
+					BLL.z = position.z - dim.y*rightVector.z - dim.x*forwardVector.z - dim.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(BLL.x, BLL.y, 1000.0, &(BLL.z), 0);
 
 					Value _vehicle(kObjectType);
@@ -644,83 +519,57 @@ void Scenario::setVehiclesList() {
 					_vector.PushBack(BLL.x - currentPos.x, allocator).PushBack(BLL.y - currentPos.y, allocator).PushBack(BLL.z - currentPos.z, allocator);
 					_vehicle.AddMember("BLL", _vector, allocator).AddMember("speed", speed, allocator).AddMember("heading", heading, allocator).AddMember("classID", classid, allocator);
 
-					if(bbox){
-                        float min_x = 2;
-                        float min_y = 2;
-                        float max_x = -1;
-                        float max_y = -1;
-                        Eigen::Matrix3f R;
-                        R.col(0) = Eigen::Vector3f(forwardVector.x, forwardVector.y, forwardVector.z);
-                        R.col(1) = Eigen::Vector3f(rightVector.x, rightVector.y, rightVector.z);
-                        R.col(2) = Eigen::Vector3f(upVector.x, upVector.y, upVector.z);
-                        for(int i = 0; i < 8; ++i){
-                            Eigen::Vector3f pt = Eigen::Vector3f(position.x, position.y, position.z) + R*Eigen::Vector3f(dim.x, dim.y, dim.z).cwiseProduct(2*coefficients[i]);
-                            Eigen::Vector2f uv = get_2d_from_3d(pt, 
-                                                                Eigen::Vector3f(cam_pos.x, cam_pos.y, cam_pos.z), 
-                                                                Eigen::Vector3f(theta.x, theta.y, theta.z), near_clip, fov);
-                            min_x = min(uv(0), min_x);
-                            min_y = min(uv(1), min_y);
-                            max_x = max(uv(0), max_x);
-                            max_y = max(uv(1), max_y);
-                        }
-                        _vector.SetArray();
-                        _vector.PushBack(min_x, allocator).PushBack(min_y, allocator);
-                        _vehicle.AddMember("TL", _vector, allocator);
-                        _vector.SetArray();
-                        _vector.PushBack(max_x, allocator).PushBack(max_y, allocator);
-                        _vehicle.AddMember("BR", _vector, allocator);
-                    }
-                    _vehicles.PushBack(_vehicle, allocator);
+					_vehicles.PushBack(_vehicle, allocator);
 
-					if(drawDebug){
-					    Vector3 edge1 = BLL;
-					    Vector3 edge2;
-					    Vector3 edge3;
-					    Vector3 edge4;
-					    Vector3 edge5 = FUR;
-					    Vector3 edge6;
-					    Vector3 edge7;
-					    Vector3 edge8;
+					#ifdef DEBUG
+					Vector3 edge1 = BLL;
+					Vector3 edge2;
+					Vector3 edge3;
+					Vector3 edge4;
+					Vector3 edge5 = FUR;
+					Vector3 edge6;
+					Vector3 edge7;
+					Vector3 edge8;
 
-					    edge2.x = edge1.x + 2 * dim.y*rightVector.x;
-					    edge2.y = edge1.y + 2 * dim.y*rightVector.y;
-					    edge2.z = edge1.z + 2 * dim.y*rightVector.z;
+					edge2.x = edge1.x + 2 * dim.y*rightVector.x;
+					edge2.y = edge1.y + 2 * dim.y*rightVector.y;
+					edge2.z = edge1.z + 2 * dim.y*rightVector.z;
 
-					    edge3.x = edge2.x + 2 * dim.z*upVector.x;
-					    edge3.y = edge2.y + 2 * dim.z*upVector.y;
-					    edge3.z = edge2.z + 2 * dim.z*upVector.z;
+					edge3.x = edge2.x + 2 * dim.z*upVector.x;
+					edge3.y = edge2.y + 2 * dim.z*upVector.y;
+					edge3.z = edge2.z + 2 * dim.z*upVector.z;
 
-					    edge4.x = edge1.x + 2 * dim.z*upVector.x;
-					    edge4.y = edge1.y + 2 * dim.z*upVector.y;
-					    edge4.z = edge1.z + 2 * dim.z*upVector.z;
+					edge4.x = edge1.x + 2 * dim.z*upVector.x;
+					edge4.y = edge1.y + 2 * dim.z*upVector.y;
+					edge4.z = edge1.z + 2 * dim.z*upVector.z;
 
-					    edge6.x = edge5.x - 2 * dim.y*rightVector.x;
-					    edge6.y = edge5.y - 2 * dim.y*rightVector.y;
-					    edge6.z = edge5.z - 2 * dim.y*rightVector.z;
+					edge6.x = edge5.x - 2 * dim.y*rightVector.x;
+					edge6.y = edge5.y - 2 * dim.y*rightVector.y;
+					edge6.z = edge5.z - 2 * dim.y*rightVector.z;
 
-					    edge7.x = edge6.x - 2 * dim.z*upVector.x;
-					    edge7.y = edge6.y - 2 * dim.z*upVector.y;
-					    edge7.z = edge6.z - 2 * dim.z*upVector.z;
+					edge7.x = edge6.x - 2 * dim.z*upVector.x;
+					edge7.y = edge6.y - 2 * dim.z*upVector.y;
+					edge7.z = edge6.z - 2 * dim.z*upVector.z;
 
-					    edge8.x = edge5.x - 2 * dim.z*upVector.x;
-					    edge8.y = edge5.y - 2 * dim.z*upVector.y;
-					    edge8.z = edge5.z - 2 * dim.z*upVector.z;
+					edge8.x = edge5.x - 2 * dim.z*upVector.x;
+					edge8.y = edge5.y - 2 * dim.z*upVector.y;
+					edge8.z = edge5.z - 2 * dim.z*upVector.z;
 
-					    GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge2.x, edge2.y, edge2.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge4.x, edge4.y, edge4.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge3.x, edge3.y, edge3.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge4.x, edge4.y, edge4.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge2.x, edge2.y, edge2.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge4.x, edge4.y, edge4.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge3.x, edge3.y, edge3.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge4.x, edge4.y, edge4.z, 0, 255, 0, 200);
 
-					    GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge6.x, edge6.y, edge6.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge6.x, edge6.y, edge6.z, edge7.x, edge7.y, edge7.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge7.x, edge7.y, edge7.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge6.x, edge6.y, edge6.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge6.x, edge6.y, edge6.z, edge7.x, edge7.y, edge7.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge7.x, edge7.y, edge7.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
 
-					    GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge7.x, edge7.y, edge7.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 0, 255, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 0, 255, 0, 200);
-                    }
+					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge7.x, edge7.y, edge7.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 0, 255, 0, 200);
+					GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 0, 255, 0, 200);
+					#endif
 
 				}
 			}
@@ -749,10 +598,7 @@ void Scenario::setPedsList(){
 
 	Vector3 currentPos = ENTITY::GET_ENTITY_COORDS(vehicle, false);
 	Vector3 currentForwardVector = ENTITY::GET_ENTITY_FORWARD_VECTOR(vehicle);
-    Vector3 theta = CAM::GET_CAM_ROT(camera, 0);
-    Vector3 cam_pos = CAM::GET_CAM_COORD(camera);
-    float fov = CAM::GET_CAM_FOV(camera);
-    float near_clip = CAM::GET_CAM_NEAR_CLIP(camera);
+
 	int count = worldGetAllPeds(peds, ARR_SIZE);
 	for (int i = 0; i < count; i++) {
 		if (PED::IS_PED_IN_ANY_VEHICLE(peds[i], TRUE)) continue; //Don't process peds in vehicles!
@@ -776,23 +622,23 @@ void Scenario::setPedsList(){
 
 					if (PED::GET_PED_TYPE(peds[i]) == 28) classid = 11; //animal
 					else classid = 10;
-                    
+
 					//Calculate size
 					dim.x = 0.5*(max.x - min.x);
 					dim.y = 0.5*(max.y - min.y);
 					dim.z = 0.5*(max.z - min.z);
 
-					FUR.x = position.x + max.y*rightVector.x + max.x*forwardVector.x + max.z*upVector.x;
-					FUR.y = position.y + max.y*rightVector.y + max.x*forwardVector.y + max.z*upVector.y;
-					FUR.z = position.z + max.y*rightVector.z + max.x*forwardVector.z + max.z*upVector.z;
+					FUR.x = position.x + dim.y*rightVector.x + dim.x*forwardVector.x + dim.z*upVector.x;
+					FUR.y = position.y + dim.y*rightVector.y + dim.x*forwardVector.y + dim.z*upVector.y;
+					FUR.z = position.z + dim.y*rightVector.z + dim.x*forwardVector.z + dim.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(FUR.x, FUR.y, 1000.0, &(FUR.z), 0);
 					//FUR.z += 2 * dim.z;
 
-					BLL.x = position.x + min.y*rightVector.x + min.x*forwardVector.x + min.z*upVector.x;
-					BLL.y = position.y + min.y*rightVector.y + min.x*forwardVector.y + min.z*upVector.y;
-					BLL.z = position.z + min.y*rightVector.z + min.x*forwardVector.z + min.z*upVector.z;
+					BLL.x = position.x - dim.y*rightVector.x - dim.x*forwardVector.x - dim.z*upVector.x;
+					BLL.y = position.y - dim.y*rightVector.y - dim.x*forwardVector.y - dim.z*upVector.y;
+					BLL.z = position.z - dim.y*rightVector.z - dim.x*forwardVector.z - dim.z*upVector.z;
 					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(BLL.x, BLL.y, 1000.0, &(BLL.z), 0);
-                    
+
 					Value _ped(kObjectType);
 
 					Value _vector(kArrayType);
@@ -801,83 +647,58 @@ void Scenario::setPedsList(){
 					_vector.SetArray();
 					_vector.PushBack(BLL.x - currentPos.x, allocator).PushBack(BLL.y - currentPos.y, allocator).PushBack(BLL.z - currentPos.z, allocator);
 					_ped.AddMember("BLL", _vector, allocator).AddMember("speed", speed, allocator).AddMember("heading", heading, allocator).AddMember("classID", classid, allocator);
-                    if(bbox){
-                        float min_x = 2;
-                        float min_y = 2;
-                        float max_x = -1;
-                        float max_y = -1;
-                        Eigen::Matrix3f R;
-                        R.col(0) = Eigen::Vector3f(forwardVector.x, forwardVector.y, forwardVector.z);
-                        R.col(1) = Eigen::Vector3f(rightVector.x, rightVector.y, rightVector.z);
-                        R.col(2) = Eigen::Vector3f(upVector.x, upVector.y, upVector.z);
-                        for (int i = 0; i < 8; ++i) {
-                            Eigen::Vector3f pt = Eigen::Vector3f(position.x, position.y, position.z) + R*Eigen::Vector3f(dim.x, dim.y, dim.z).cwiseProduct(2*coefficients[i]);
-                            Eigen::Vector2f uv = get_2d_from_3d(pt,
-                                Eigen::Vector3f(cam_pos.x, cam_pos.y, cam_pos.z),
-                                Eigen::Vector3f(theta.x, theta.y, theta.z), near_clip, fov);
-                            min_x = min(uv(0), min_x);
-                            min_y = min(uv(1), min_y);
-                            max_x = max(uv(0), max_x);
-                            max_y = max(uv(1), max_y);
-                        }
-                        _vector.SetArray();
-                        _vector.PushBack(min_x, allocator).PushBack(min_y, allocator);
-                        _ped.AddMember("TL", _vector, allocator);
-                        _vector.SetArray();
-                        _vector.PushBack(max_x, allocator).PushBack(max_y, allocator);
-                        _ped.AddMember("BR", _vector, allocator);
-                    }
+
 					_peds.PushBack(_ped, allocator);
 
-					if(drawDebug){
-					    Vector3 edge1 = BLL;
-					    Vector3 edge2;
-					    Vector3 edge3;
-					    Vector3 edge4;
-					    Vector3 edge5 = FUR;
-					    Vector3 edge6;
-					    Vector3 edge7;
-					    Vector3 edge8;
+					#ifdef DEBUG
+					Vector3 edge1 = BLL;
+					Vector3 edge2;
+					Vector3 edge3;
+					Vector3 edge4;
+					Vector3 edge5 = FUR;
+					Vector3 edge6;
+					Vector3 edge7;
+					Vector3 edge8;
 
-					    edge2.x = edge1.x + 2 * dim.y*rightVector.x;
-					    edge2.y = edge1.y + 2 * dim.y*rightVector.y;
-					    edge2.z = edge1.z + 2 * dim.y*rightVector.z;
+					edge2.x = edge1.x + 2 * dim.y*rightVector.x;
+					edge2.y = edge1.y + 2 * dim.y*rightVector.y;
+					edge2.z = edge1.z + 2 * dim.y*rightVector.z;
 
-					    edge3.x = edge2.x + 2 * dim.z*upVector.x;
-					    edge3.y = edge2.y + 2 * dim.z*upVector.y;
-					    edge3.z = edge2.z + 2 * dim.z*upVector.z;
+					edge3.x = edge2.x + 2 * dim.z*upVector.x;
+					edge3.y = edge2.y + 2 * dim.z*upVector.y;
+					edge3.z = edge2.z + 2 * dim.z*upVector.z;
 
-					    edge4.x = edge1.x + 2 * dim.z*upVector.x;
-					    edge4.y = edge1.y + 2 * dim.z*upVector.y;
-					    edge4.z = edge1.z + 2 * dim.z*upVector.z;
+					edge4.x = edge1.x + 2 * dim.z*upVector.x;
+					edge4.y = edge1.y + 2 * dim.z*upVector.y;
+					edge4.z = edge1.z + 2 * dim.z*upVector.z;
 
-					    edge6.x = edge5.x - 2 * dim.y*rightVector.x;
-					    edge6.y = edge5.y - 2 * dim.y*rightVector.y;
-					    edge6.z = edge5.z - 2 * dim.y*rightVector.z;
+					edge6.x = edge5.x - 2 * dim.y*rightVector.x;
+					edge6.y = edge5.y - 2 * dim.y*rightVector.y;
+					edge6.z = edge5.z - 2 * dim.y*rightVector.z;
 
-					    edge7.x = edge6.x - 2 * dim.z*upVector.x;
-					    edge7.y = edge6.y - 2 * dim.z*upVector.y;
-					    edge7.z = edge6.z - 2 * dim.z*upVector.z;
+					edge7.x = edge6.x - 2 * dim.z*upVector.x;
+					edge7.y = edge6.y - 2 * dim.z*upVector.y;
+					edge7.z = edge6.z - 2 * dim.z*upVector.z;
 
-					    edge8.x = edge5.x - 2 * dim.z*upVector.x;
-					    edge8.y = edge5.y - 2 * dim.z*upVector.y;
-					    edge8.z = edge5.z - 2 * dim.z*upVector.z;
+					edge8.x = edge5.x - 2 * dim.z*upVector.x;
+					edge8.y = edge5.y - 2 * dim.z*upVector.y;
+					edge8.z = edge5.z - 2 * dim.z*upVector.z;
 
-					    GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge2.x, edge2.y, edge2.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge4.x, edge4.y, edge4.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge3.x, edge3.y, edge3.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge4.x, edge4.y, edge4.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge2.x, edge2.y, edge2.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge4.x, edge4.y, edge4.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge3.x, edge3.y, edge3.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge4.x, edge4.y, edge4.z, 255, 0, 0, 200);
 
-					    GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge6.x, edge6.y, edge6.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge6.x, edge6.y, edge6.z, edge7.x, edge7.y, edge7.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge7.x, edge7.y, edge7.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge6.x, edge6.y, edge6.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge5.x, edge5.y, edge5.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge6.x, edge6.y, edge6.z, edge7.x, edge7.y, edge7.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge7.x, edge7.y, edge7.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
 
-					    GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge7.x, edge7.y, edge7.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 255, 0, 0, 200);
-					    GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 255, 0, 0, 200);
-                    }
+					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge7.x, edge7.y, edge7.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 255, 0, 0, 200);
+					GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 255, 0, 0, 200);
+					#endif
 
 				}
 			}
