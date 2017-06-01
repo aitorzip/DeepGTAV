@@ -19,14 +19,14 @@ void Scenario::parseScenarioConfig(const Value& sc, bool setDefaults) {
 
 	if (location.IsArray()) {
 		if (!location[0].IsNull()) x = location[0].GetFloat();
-		else if (setDefaults) x = 6000 * ((float)rand() / RAND_MAX) - 3000;
+		else if (setDefaults) x = 5000 * ((float)rand() / RAND_MAX) - 2500;
 
 		if (!location[1].IsNull()) y = location[1].GetFloat(); 
-		else if (setDefaults) y = 6000 * ((float)rand() / RAND_MAX) - 3000;
+		else if (setDefaults) y = 8000 * ((float)rand() / RAND_MAX) - 2000;
 	}
 	else if (setDefaults) {
-		x = 6000 * ((float)rand() / RAND_MAX) - 3000;
-		y = 6000 * ((float)rand() / RAND_MAX) - 3000;
+		x = 5000 * ((float)rand() / RAND_MAX) - 2500;
+		y = 8000 * ((float)rand() / RAND_MAX) - 2000;
 	}
 
 	if (time.IsArray()) {
@@ -150,7 +150,7 @@ void Scenario::buildScenario() {
 
 	GAMEPLAY::SET_RANDOM_SEED(std::time(NULL));
 	while (!PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) WAIT(0);
-	PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(x, y, 0, &pos, &heading, 0, 300, 300);
+	PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(x, y, 0, &pos, &heading, 0, 0, 0);
 	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
 	ENTITY::DELETE_ENTITY(&vehicle);
