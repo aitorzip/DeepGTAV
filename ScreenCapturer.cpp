@@ -5,14 +5,14 @@
 ScreenCapturer::ScreenCapturer(int frameWidth, int frameHeight){
 	imageWidth = frameWidth;
 	imageHeight = frameHeight;
+
 	// Round up the scan line size to a multiple of 4
-	int imageStride = (imageWidth * 3 + 3) / 4 * 4;
-	length = imageStride * imageHeight;
+	length = ((imageWidth * 3 + 3) / 4 * 4) * imageHeight;
 
 	//Screen capture buffer
 	GRAPHICS::_GET_SCREEN_ACTIVE_RESOLUTION(&windowWidth, &windowHeight);
-	hWnd = ::FindWindow(NULL, "Grand Theft Auto V");
-	hWindowDC = GetDC(hWnd);
+	//hWnd = ::FindWindow(NULL, "Grand Theft Auto V");
+	hWindowDC = GetDC(NULL);
 	hCaptureDC = CreateCompatibleDC(hWindowDC);
 	hCaptureBitmap = CreateCompatibleBitmap(hWindowDC, imageWidth, imageHeight);
 	SelectObject(hCaptureDC, hCaptureBitmap);

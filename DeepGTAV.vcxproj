@@ -19,6 +19,7 @@
     <ClCompile Include="lib\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="defaults.h" />
     <ClInclude Include="Rewarders\Rewarder.h" />
     <ClInclude Include="Rewarders\GeneralRewarder.h" />
     <ClInclude Include="Rewarders\LaneRewarder.h" />

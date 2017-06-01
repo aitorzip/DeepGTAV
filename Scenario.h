@@ -18,11 +18,20 @@ using namespace rapidjson;
 
 class Scenario {
 private:
+	static char* weatherList[14];
+	static char* vehicleList[3];
+
 	Vehicle vehicle = NULL;
 	Player player = NULL;
 	Ped ped = NULL;
 	Cam camera = NULL;
 	Vector3 dir;
+
+	float x, y;
+	int hour, minute;
+	const char* _weather;
+	const char* _vehicle;
+	int width, height;
 
 	bool vehicles;
 	bool peds;
@@ -63,6 +72,10 @@ public:
 	StringBuffer generateMessage();
 
 private:
+	void parseScenarioConfig(const Value& sc, bool setDefaults);
+	void parseDatasetConfig(const Value& dc, bool setDefaults);
+	void buildScenario();
+
 	void setVehiclesList();
 	void setPedsList();
 	void setTrafficSignsList();

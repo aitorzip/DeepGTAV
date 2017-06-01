@@ -4,141 +4,164 @@
 #include "Rewarders\GeneralRewarder.h"
 #include "Rewarders\LaneRewarder.h"
 #include "Rewarders\SpeedRewarder.h"
+#include "defaults.h"
 #include <time.h>
 
-void Scenario::start(const Value& sc, const Value& dc) {
-	if (running) return;
+char* Scenario::weatherList[14] = { "CLEAR", "EXTRASUNNY", "CLOUDS", "OVERCAST", "RAIN", "CLEARING", "THUNDER", "SMOG", "FOGGY", "XMAS", "SNOWLIGHT", "BLIZZARD", "NEUTRAL", "SNOW" };
+char* Scenario::vehicleList[3] = { "blista", "voltic", "packer" };
 
-	const char* weatherList[] = { "CLEAR", "EXTRASUNNY", "CLOUDS", "OVERCAST", "RAIN", "CLEARING", "THUNDER", "SMOG", "FOGGY", "XMAS", "SNOWLIGHT", "BLIZZARD", "NEUTRAL", "SNOW" };
-	const char* vehicleList[] = { "blista", "voltic", "packer" };
-	float x, y, heading;
-	int hour, minute, width, height;
-	const char* _weather;
-	const char* _vehicle;
-
-	Vector3 pos, rotation;
-	Hash vehicleHash;
-
-	//Parse options
-	srand(std::time(NULL));
-	GAMEPLAY::SET_RANDOM_SEED(std::time(NULL));
-
-	if (dc["rate"].IsNull()) rate = 10;
-	else rate = dc["rate"].GetInt();
-	if (dc["frame"].IsNull()) {
-		width = 320; height = 160;
-	}
-	else {
-		if (dc["frame"][0].IsNull()) width = 320;
-		else width = dc["frame"][0].GetInt();
-		if (dc["frame"][1].IsNull()) height = 160;
-		else height = dc["frame"][1].GetInt();
-	}
-	if (dc["vehicles"].IsNull()) vehicles = false;
-	else vehicles = dc["vehicles"].GetBool();
-	if (dc["peds"].IsNull()) peds = false;
-	else peds = dc["peds"].GetBool();
-	if (dc["trafficSigns"].IsNull()) trafficSigns = false;
-	else trafficSigns = dc["trafficSigns"].GetBool();
-	if (dc["direction"].IsNull()) direction = false;
-	else {
-		direction = true;
-		if (dc["direction"][0].IsNull()) direction = false;
-		else dir.x = dc["direction"][0].GetFloat();
-		if (dc["direction"][1].IsNull()) direction = false;
-		else dir.y = dc["direction"][1].GetFloat();
-		if (dc["direction"][2].IsNull()) direction = false;
-		else dir.z = dc["direction"][2].GetFloat();
-	}
-	if (dc["reward"].IsNull()) reward = false;
-	else {
-		reward = false;
-		if (dc["reward"].IsArray()) {
-			if (dc["reward"][0].IsFloat() && dc["reward"][1].IsFloat()) {
-				delete(rewarder);
-				rewarder = new GeneralRewarder((char*)(GetCurrentModulePath() + "paths.xml").c_str(), dc["reward"][0].GetFloat(), dc["reward"][1].GetFloat());
-				reward = true;
-			}
-		}
-	}
-	if (dc["throttle"].IsNull()) throttle = false;
-	else throttle = dc["throttle"].GetBool();
-	if (dc["brake"].IsNull()) brake = false;
-	else brake = dc["brake"].GetBool();
-	if (dc["steering"].IsNull()) steering = false;
-	else steering = dc["steering"].GetBool();
-	if (dc["speed"].IsNull()) speed = false;
-	else speed = dc["speed"].GetBool();
-	if (dc["yawRate"].IsNull()) yawRate = false;
-	else yawRate = dc["yawRate"].GetBool();
-	if (dc["drivingMode"].IsNull()) drivingMode = false;
-	else drivingMode = dc["drivingMode"].GetBool();
-	if (dc["location"].IsNull()) location = false;
-	else location = dc["location"].GetBool();
-	if (dc["time"].IsNull()) time = false;
-	else time = dc["time"].GetBool();
-
+void Scenario::parseScenarioConfig(const Value& sc, bool setDefaults) {
 	const Value& location = sc["location"];
 	const Value& time = sc["time"];
 	const Value& weather = sc["weather"];
 	const Value& vehicle = sc["vehicle"];
 	const Value& drivingMode = sc["drivingMode"];
 
-	if (location.IsNull()) {
-		x = -3400 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 10000));
-		y = -3600 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 10600));
+	if (location.IsArray()) {
+		if (!location[0].IsNull()) x = location[0].GetFloat();
+		else if (setDefaults) x = 6000 * ((float)rand() / RAND_MAX) - 3000;
+
+		if (!location[1].IsNull()) y = location[1].GetFloat(); 
+		else if (setDefaults) y = 6000 * ((float)rand() / RAND_MAX) - 3000;
 	}
-	else {
-		if (location[0].IsNull()) x = -3400 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 10000));
-		else x = location[0].GetFloat();
-		if (location[1].IsNull()) y = -3600 + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / 10600));
-		else y = location[1].GetFloat();
+	else if (setDefaults) {
+		x = 6000 * ((float)rand() / RAND_MAX) - 3000;
+		y = 6000 * ((float)rand() / RAND_MAX) - 3000;
 	}
 
-	if (time.IsNull()) {
+	if (time.IsArray()) {
+		if (!time[0].IsNull()) hour = time[0].GetInt();
+		else if (setDefaults) hour = rand() % 24;
+
+		if (!time[1].IsNull()) minute = time[1].GetInt();
+		else if (setDefaults) minute = rand() % 60;
+	}
+	else if (setDefaults) {
 		hour = rand() % 24;
 		minute = rand() % 60;
 	}
-	else {
-		if (time[0].IsNull()) hour = rand() % 24;
-		else hour = time[0].GetInt();
-		if (time[1].IsNull()) minute = rand() % 60;
-		else minute = time[1].GetInt();
+
+	if (!weather.IsNull()) _weather = weather.GetString();
+	else if (setDefaults) _weather = weatherList[rand() % 14];
+
+	if (!vehicle.IsNull()) _vehicle = vehicle.GetString();
+	else if (setDefaults) _vehicle = vehicleList[rand() % 3];
+
+	if (drivingMode.IsArray()) {
+		if (!drivingMode[0].IsNull()) _drivingMode = drivingMode[0].GetInt();
+		else if (setDefaults)  _drivingMode = rand() % 4294967296;
+		if (drivingMode[1].IsNull()) _setSpeed = drivingMode[1].GetFloat(); 
+		else if (setDefaults) _setSpeed = 1.0*(rand() % 20);
 	}
-
-	if (weather.IsNull()) _weather = weatherList[rand() % 14];
-	else _weather = weather.GetString();
-
-	if (vehicle.IsNull()) _vehicle = vehicleList[rand() % 3];
-	else _vehicle = vehicle.GetString();
-
-	if (drivingMode.IsNull()) {
-		_drivingMode = rand() % 4294967296;
-		_setSpeed = 1.0*(rand() % 20);
+	else if (setDefaults) {
+		_drivingMode = -1;
 	}
-	else {
-		if (drivingMode.IsArray()) {
-			if (drivingMode[0].IsNull()) _drivingMode = rand() % 4294967296;
-			else _drivingMode = drivingMode[0].GetInt();
-			if (drivingMode[1].IsNull()) _setSpeed = 1.0*(rand() % 20);
-			else _setSpeed = drivingMode[1].GetFloat();
+}
+
+void Scenario::parseDatasetConfig(const Value& dc, bool setDefaults) {
+	if (!dc["rate"].IsNull()) rate = dc["rate"].GetInt();
+	else if (setDefaults) rate = _RATE_;
+	
+	if (!dc["frame"].IsNull()) {
+		if (!dc["frame"][0].IsNull()) width = dc["frame"][0].GetInt();
+		else if (setDefaults) width = _WIDTH_;
+
+		if (!dc["frame"][1].IsNull()) height = dc["frame"][1].GetInt();
+		else if (setDefaults) height = _HEIGHT_;
+	}
+	else if (setDefaults) {
+		width = _WIDTH_;
+		height = _HEIGHT_;
+	}	
+
+	if (!dc["vehicles"].IsNull()) vehicles = dc["vehicles"].GetBool();
+	else if (setDefaults) vehicles = _VEHICLES_;
+
+	if (!dc["peds"].IsNull()) peds = dc["peds"].GetBool();
+	else if (setDefaults) peds = _PEDS_;
+
+	if (!dc["trafficSigns"].IsNull()) trafficSigns = dc["trafficSigns"].GetBool();
+	else if (setDefaults) trafficSigns = _TRAFFIC_SIGNS_;
+
+	if (!dc["direction"].IsNull()) {
+		if (!dc["direction"][0].IsNull()) dir.x = dc["direction"][0].GetFloat();
+		else if (setDefaults) direction = _DIRECTION_;
+
+		if (!dc["direction"][1].IsNull()) dir.y = dc["direction"][1].GetFloat();
+		else if (setDefaults) direction = _DIRECTION_;
+
+		if (!dc["direction"][2].IsNull()) dir.z = dc["direction"][2].GetFloat();
+		else if (setDefaults) direction = _DIRECTION_;
+	}
+	else if (setDefaults) direction = _DIRECTION_;
+
+	if (dc["reward"].IsArray()) {
+		if (dc["reward"][0].IsFloat() && dc["reward"][1].IsFloat()) {
+			rewarder = new GeneralRewarder((char*)(GetCurrentModulePath() + "paths.xml").c_str(), dc["reward"][0].GetFloat(), dc["reward"][1].GetFloat());
+			reward = true;
 		}
-		else _drivingMode = -1;
+		else if (setDefaults) reward = _REWARD_;
 	}
+	else if (setDefaults) reward = _REWARD_;
 
-	//Build scenario
+	if (!dc["throttle"].IsNull()) throttle = dc["throttle"].GetBool();
+	else if (setDefaults) throttle = _THROTTLE_;
+	if (!dc["brake"].IsNull()) brake = dc["brake"].GetBool();
+	else if (setDefaults) brake = _BRAKE_;
+	if (!dc["steering"].IsNull()) steering = dc["steering"].GetBool();
+	else if (setDefaults) steering = _STEERING_;
+	if (!dc["speed"].IsNull()) speed = dc["speed"].GetBool();
+	else if (setDefaults) speed = _SPEED_;
+	if (!dc["yawRate"].IsNull()) yawRate = dc["yawRate"].GetBool();
+	else if (setDefaults) yawRate = _YAW_RATE_;
+	if (!dc["drivingMode"].IsNull()) drivingMode = dc["drivingMode"].GetBool();
+	else if (setDefaults) drivingMode = _DRIVING_MODE_;
+	if (!dc["location"].IsNull()) location = dc["location"].GetBool();
+	else if (setDefaults) location = _LOCATION_;
+	if (!dc["time"].IsNull()) time = dc["time"].GetBool();
+	else if (setDefaults) time = _TIME_;
+
+	//Create JSON DOM
+	d.SetObject();
+	Document::AllocatorType& allocator = d.GetAllocator();
+	Value a(kArrayType);
+
+	if (vehicles) d.AddMember("vehicles", a, allocator);
+	if (peds) d.AddMember("peds", a, allocator);
+	if (trafficSigns) d.AddMember("trafficSigns", a, allocator);
+	if (direction) d.AddMember("direction", a, allocator);
+	if (reward) d.AddMember("reward", 0.0, allocator);
+	if (throttle) d.AddMember("throttle", 0.0, allocator);
+	if (brake) d.AddMember("brake", 0.0, allocator);
+	if (steering) d.AddMember("steering", 0.0, allocator);
+	if (speed) d.AddMember("speed", 0.0, allocator);
+	if (yawRate) d.AddMember("yawRate", 0.0, allocator);
+	if (drivingMode) d.AddMember("drivingMode", 0, allocator);
+	if (location) d.AddMember("location", a, allocator);
+	if (time) d.AddMember("time", 0, allocator);
+
+	screenCapturer = new ScreenCapturer(width, height);
+}
+
+void Scenario::buildScenario() {
+	Vector3 pos, rotation;
+	Hash vehicleHash;
+	float heading;
+
+	GAMEPLAY::SET_RANDOM_SEED(std::time(NULL));
 	while (!PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) WAIT(0);
 	PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(x, y, 0, &pos, &heading, 0, 300, 300);
 	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
+	ENTITY::DELETE_ENTITY(&vehicle);
 	vehicleHash = GAMEPLAY::GET_HASH_KEY((char*)_vehicle);
 	STREAMING::REQUEST_MODEL(vehicleHash);
 	while (!STREAMING::HAS_MODEL_LOADED(vehicleHash)) WAIT(0);
-	while (!ENTITY::DOES_ENTITY_EXIST(this->vehicle)) {
-		this->vehicle = VEHICLE::CREATE_VEHICLE(vehicleHash, pos.x, pos.y, pos.z, heading, FALSE, FALSE);
+	while (!ENTITY::DOES_ENTITY_EXIST(vehicle)) {
+		vehicle = VEHICLE::CREATE_VEHICLE(vehicleHash, pos.x, pos.y, pos.z, heading, FALSE, FALSE);
 		WAIT(0);
 	}
-	VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(this->vehicle);
+	VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(vehicle);
 
 	while (!ENTITY::DOES_ENTITY_EXIST(ped)) {
 		ped = PLAYER::PLAYER_PED_ID();
@@ -149,18 +172,18 @@ void Scenario::start(const Value& sc, const Value& dc) {
 	PLAYER::START_PLAYER_TELEPORT(player, pos.x, pos.y, pos.z, heading, 0, 0, 0);
 	while (PLAYER::IS_PLAYER_TELEPORT_ACTIVE()) WAIT(0);
 
-	PED::SET_PED_INTO_VEHICLE(ped, this->vehicle, -1);
+	PED::SET_PED_INTO_VEHICLE(ped, vehicle, -1);
 	STREAMING::SET_MODEL_AS_NO_LONGER_NEEDED(vehicleHash);
 
 	TIME::SET_CLOCK_TIME(hour, minute, 0);
 
 	GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char*)_weather);
 
-	rotation = ENTITY::GET_ENTITY_ROTATION(this->vehicle, 1);
+	rotation = ENTITY::GET_ENTITY_ROTATION(vehicle, 1);
 	CAM::DESTROY_ALL_CAMS(TRUE);
 	camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
-	if (strcmp(_vehicle, "packer") == 0) CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 2.35, 1.7, TRUE);
-	else CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
+	if (strcmp(_vehicle, "packer") == 0) CAM::ATTACH_CAM_TO_ENTITY(camera, vehicle, 0, 2.35, 1.7, TRUE);
+	else CAM::ATTACH_CAM_TO_ENTITY(camera, vehicle, 0, 0.5, 0.8, TRUE);
 	CAM::SET_CAM_FOV(camera, 60);
 	CAM::SET_CAM_ACTIVE(camera, TRUE);
 	CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
@@ -168,29 +191,19 @@ void Scenario::start(const Value& sc, const Value& dc) {
 	CAM::RENDER_SCRIPT_CAMS(TRUE, FALSE, 0, TRUE, TRUE);
 
 	AI::CLEAR_PED_TASKS(ped);
-	if (_drivingMode >= 0) AI::TASK_VEHICLE_DRIVE_WANDER(ped, this->vehicle, _setSpeed, _drivingMode);
+	if (_drivingMode >= 0) AI::TASK_VEHICLE_DRIVE_WANDER(ped, vehicle, _setSpeed, _drivingMode);
+}
 
-	//Create JSON DOM
-	d.SetObject();
-	Document::AllocatorType& allocator = d.GetAllocator();
-	Value a(kArrayType);
+void Scenario::start(const Value& sc, const Value& dc) {
+	if (running) return;
 
-	if (vehicles) d.AddMember("vehicles", a, allocator);
-	if (peds) d.AddMember("peds", a, allocator);
-	if (trafficSigns) d.AddMember("trafficSigns", a, allocator);
-	if (direction) d.AddMember("direction", a, allocator);
-	if (reward) d.AddMember("reward", 0.0, allocator);
-	if (throttle) d.AddMember("throttle", 0.0, allocator);
-	if (brake) d.AddMember("brake", 0.0, allocator);
-	if (steering) d.AddMember("steering", 0.0, allocator);
-	if (speed) d.AddMember("speed", 0.0, allocator);
-	if (yawRate) d.AddMember("yawRate", 0.0, allocator);
-	if (this->drivingMode) d.AddMember("drivingMode", 0, allocator);
-	if (this->location) d.AddMember("location", a, allocator);
-	if (this->time) d.AddMember("time", 0, allocator);
+	//Parse options
+	srand(std::time(NULL));
+	parseScenarioConfig(sc, true);
+	parseDatasetConfig(dc, true);
 
-	delete(screenCapturer);
-	screenCapturer = new ScreenCapturer(width, height);
+	//Build scenario
+	buildScenario();
 
 	running = true;
 	lastSafetyCheck = std::clock();
@@ -199,162 +212,18 @@ void Scenario::start(const Value& sc, const Value& dc) {
 void Scenario::config(const Value& sc, const Value& dc) {
 	if (!running) return;
 
-	const char* weatherList[] = { "CLEAR", "EXTRASUNNY", "CLOUDS", "OVERCAST", "RAIN", "CLEARING", "THUNDER", "SMOG", "FOGGY", "XMAS", "SNOWLIGHT", "BLIZZARD", "NEUTRAL", "SNOW" };
-	const char* vehicleList[] = { "blista", "voltic", "packer" };
-	float x, y, heading;
-	int hour, minute, _drivingMode, width, height;
-	const char* _weather;
-	const char* _vehicle;
-
-	Vector3 pos, rotation;
-	Hash vehicleHash;
+	running = false;
 
 	//Parse options
 	srand(std::time(NULL));
-	GAMEPLAY::SET_RANDOM_SEED(std::time(NULL));
+	parseScenarioConfig(sc, false);
+	parseDatasetConfig(dc, false);
 
-	if (!dc["rate"].IsNull()) rate = dc["rate"].GetInt();
-	if (!dc["frame"].IsNull()) {
-		if (!dc["frame"][0].IsNull()) width = dc["frame"][0].GetInt(); 
-		else width = screenCapturer->imageWidth;
-		if (!dc["frame"][0].IsNull()) height = dc["frame"][1].GetInt();
-		else height = screenCapturer->imageHeight;
-		
-		delete(screenCapturer);
-		screenCapturer = new ScreenCapturer(width, height);
-	}
-	if (!dc["vehicles"].IsNull()) vehicles = dc["vehicles"].GetBool();
-	if (!dc["peds"].IsNull()) peds = dc["peds"].GetBool();
-	if (!dc["trafficSigns"].IsNull()) trafficSigns = dc["trafficSigns"].GetBool();
-	if (!dc["directions"].IsNull()) {
-		if (!dc["direction"][0].IsNull()) dir.x = dc["direction"][0].GetFloat();
-		if (!dc["direction"][1].IsNull()) dir.y = dc["direction"][1].GetFloat();
-		if (!dc["direction"][2].IsNull()) dir.z = dc["direction"][2].GetFloat();
-	}
-	if (dc["reward"].IsArray()) {
-		reward = false;
-		if (dc["reward"][0].IsFloat() && dc["reward"][1].IsFloat()) {
-			delete(rewarder);
-			rewarder = new GeneralRewarder((char*)(GetCurrentModulePath() + "paths.xml").c_str(), dc["reward"][0].GetFloat(), dc["reward"][1].GetFloat());
-			reward = true;
-		}
-	} 
-	if (!dc["throttle"].IsNull()) throttle = dc["throttle"].GetBool();
-	if (!dc["brake"].IsNull()) brake = dc["brake"].GetBool();
-	if (!dc["steering"].IsNull()) steering = dc["steering"].GetBool();
-	if (!dc["speed"].IsNull()) speed = dc["speed"].GetBool();
-	if (!dc["yawRate"].IsNull()) yawRate = dc["yawRate"].GetBool();
-	if (!dc["drivingMode"].IsNull()) drivingMode = dc["drivingMode"].GetBool();
-	if (!dc["location"].IsNull()) location = dc["location"].GetBool();
-	if (!dc["time"].IsNull()) time = dc["time"].GetBool();
+	//Build scenario
+	buildScenario();
 
-	const Value& location = sc["location"];
-	const Value& time = sc["time"];
-	const Value& weather = sc["weather"];
-	const Value& vehicle = sc["vehicle"];
-	const Value& drivingMode = sc["drivingMode"];
-
-	//Create JSON DOM
-	d.SetObject();
-	Document::AllocatorType& allocator = d.GetAllocator();
-	Value a(kArrayType);
-
-	if (vehicles) d.AddMember("vehicles", a, allocator);
-	if (peds) d.AddMember("peds", a, allocator);
-	if (trafficSigns) d.AddMember("trafficSigns", a, allocator);
-	if (direction) d.AddMember("direction", a, allocator);
-	if (reward) d.AddMember("reward", 0.0, allocator);
-	if (throttle) d.AddMember("throttle", 0.0, allocator);
-	if (brake) d.AddMember("brake", 0.0, allocator);
-	if (steering) d.AddMember("steering", 0.0, allocator);
-	if (speed) d.AddMember("speed", 0.0, allocator);
-	if (yawRate) d.AddMember("yawRate", 0.0, allocator);
-	if (this->drivingMode) d.AddMember("drivingMode", 0, allocator);
-	if (this->location) d.AddMember("location", a, allocator);
-	if (this->time) d.AddMember("time", 0, allocator);
-
-	if (!vehicle.IsNull()) {
-		_vehicle = vehicle.GetString();
-		vehicleHash = GAMEPLAY::GET_HASH_KEY((char*)_vehicle);
-
-		pos = ENTITY::GET_ENTITY_COORDS(ped, 1);
-		heading = ENTITY::GET_ENTITY_HEADING(this->vehicle);
-		VEHICLE::DELETE_VEHICLE(&(this->vehicle));
-		
-		STREAMING::REQUEST_MODEL(vehicleHash);
-		while (!STREAMING::HAS_MODEL_LOADED(vehicleHash)) WAIT(0);
-		while (!ENTITY::DOES_ENTITY_EXIST(this->vehicle)) {
-			this->vehicle = VEHICLE::CREATE_VEHICLE(vehicleHash, pos.x, pos.y, pos.z, heading, FALSE, FALSE);
-			WAIT(0);
-		}
-		VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(this->vehicle);
-
-		PED::SET_PED_INTO_VEHICLE(ped, this->vehicle, -1);
-
-		rotation = ENTITY::GET_ENTITY_ROTATION(this->vehicle, 1);
-		CAM::DESTROY_ALL_CAMS(TRUE);
-		camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
-		if (strcmp(_vehicle, "packer") == 0) CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 2.35, 1.7, TRUE);
-		else CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
-		CAM::SET_CAM_FOV(camera, 60);
-		CAM::SET_CAM_ACTIVE(camera, TRUE);
-		CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
-		CAM::SET_CAM_INHERIT_ROLL_VEHICLE(camera, TRUE);
-		CAM::RENDER_SCRIPT_CAMS(TRUE, FALSE, 0, TRUE, TRUE);
-	}
-
-	if (!location.IsNull()) {
-		if (!location[0].IsNull()) x = location[0].GetFloat();
-		if (!location[1].IsNull()) y = location[1].GetFloat();
-
-		while (!PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) WAIT(0);
-		PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(x, y, 0, &pos, &heading, 0, 300, 300);
-		PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
-
-		PLAYER::START_PLAYER_TELEPORT(player, pos.x, pos.y, pos.z, heading, 0, 0, 0);
-		while (PLAYER::IS_PLAYER_TELEPORT_ACTIVE()) WAIT(0);
-
-		ENTITY::SET_ENTITY_QUATERNION(this->vehicle, pos.x, pos.y, pos.z, heading);
-		VEHICLE::SET_VEHICLE_ON_GROUND_PROPERLY(this->vehicle);
-
-		PED::SET_PED_INTO_VEHICLE(ped, this->vehicle, -1);
-
-		rotation = ENTITY::GET_ENTITY_ROTATION(this->vehicle, 1);
-		CAM::DESTROY_ALL_CAMS(TRUE);
-		camera = CAM::CREATE_CAM("DEFAULT_SCRIPTED_CAMERA", TRUE);
-		CAM::ATTACH_CAM_TO_ENTITY(camera, this->vehicle, 0, 0.5, 0.8, TRUE);
-		CAM::SET_CAM_FOV(camera, 60);
-		CAM::SET_CAM_ACTIVE(camera, TRUE);
-		CAM::SET_CAM_ROT(camera, rotation.x, rotation.y, rotation.z, 1);
-		CAM::SET_CAM_INHERIT_ROLL_VEHICLE(camera, TRUE);
-		CAM::RENDER_SCRIPT_CAMS(TRUE, FALSE, 0, TRUE, TRUE);
-	}
-
-	if (!time.IsNull()) {
-		if (!time[0].IsNull()) hour = time[0].GetInt();
-		else hour = TIME::GET_CLOCK_HOURS();
-		if (!time[1].IsNull()) minute = time[1].GetInt();
-		else minute = TIME::GET_CLOCK_MINUTES();
-
-		TIME::SET_CLOCK_TIME(hour, minute, 0);
-	}
-
-	if (!weather.IsNull()) {
-		_weather = weather.GetString();
-		GAMEPLAY::SET_WEATHER_TYPE_NOW_PERSIST((char*)_weather);
-	}
-
-	if (!drivingMode.IsNull()) {
-		if (drivingMode.IsArray()) {
-			if (!drivingMode[0].IsNull()) _drivingMode = drivingMode[0].GetInt();
-			if (!drivingMode[1].IsNull()) _setSpeed = drivingMode[1].GetFloat();
-		}
-		else _drivingMode = -1;
-		
-		AI::CLEAR_PED_TASKS(ped);
-		if (_drivingMode >= 0) AI::TASK_VEHICLE_DRIVE_WANDER(ped, this->vehicle, _setSpeed, _drivingMode);
-	}
-	
+	running = true;
+	lastSafetyCheck = std::clock();
 }
 
 void Scenario::run() {
