@@ -84,6 +84,7 @@ void Scenario::parseDatasetConfig(const Value& dc, bool setDefaults) {
 	else if (setDefaults) trafficSigns = _TRAFFIC_SIGNS_;
 
 	if (!dc["direction"].IsNull()) {
+		direction = true;
 		if (!dc["direction"][0].IsNull()) dir.x = dc["direction"][0].GetFloat();
 		else if (setDefaults) direction = _DIRECTION_;
 
