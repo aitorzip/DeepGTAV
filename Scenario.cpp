@@ -614,8 +614,9 @@ void Scenario::setTime(){
 void Scenario::setDirection(){
 	int direction;
 	float distance;
+	Vehicle temp_vehicle;
 	Document::AllocatorType& allocator = d.GetAllocator();
-	PATHFIND::GENERATE_DIRECTIONS_TO_COORD(dir.x, dir.y, dir.z, TRUE, &direction, &vehicle, &distance);
+	PATHFIND::GENERATE_DIRECTIONS_TO_COORD(dir.x, dir.y, dir.z, TRUE, &direction, &temp_vehicle, &distance);
 	Value _direction(kArrayType);
 	_direction.PushBack(direction, allocator).PushBack(distance, allocator);
 	d["direction"] = _direction;
