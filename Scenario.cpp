@@ -578,15 +578,15 @@ void Scenario::setPedsList(){
 
 
 void Scenario::setThrottle(){
-	d["throttle"] = getFloatValue(vehicle, 0x8FC);
+	d["throttle"] = getFloatValue(vehicle, 0x90C);
 }
 
 void Scenario::setBrake(){
-	d["brake"] = getFloatValue(vehicle, 0x900);
+	d["brake"] = getFloatValue(vehicle, 0x910);
 }
 
 void Scenario::setSteering(){
-	d["steering"] = getFloatValue(vehicle, 0x8F4) / -0.7;
+	d["steering"] = getFloatValue(vehicle, 0x904) / -0.7;
 }
 
 void Scenario::setSpeed(){
