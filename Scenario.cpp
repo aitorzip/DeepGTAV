@@ -84,6 +84,7 @@ void Scenario::parseDatasetConfig(const Value& dc, bool setDefaults) {
 	else if (setDefaults) trafficSigns = _TRAFFIC_SIGNS_;
 
 	if (!dc["direction"].IsNull()) {
+		direction = true;
 		if (!dc["direction"][0].IsNull()) dir.x = dc["direction"][0].GetFloat();
 		else if (setDefaults) direction = _DIRECTION_;
 
@@ -613,8 +614,9 @@ void Scenario::setTime(){
 void Scenario::setDirection(){
 	int direction;
 	float distance;
+	Vehicle temp_vehicle;
 	Document::AllocatorType& allocator = d.GetAllocator();
-	PATHFIND::GENERATE_DIRECTIONS_TO_COORD(dir.x, dir.y, dir.z, TRUE, &direction, &vehicle, &distance);
+	PATHFIND::GENERATE_DIRECTIONS_TO_COORD(dir.x, dir.y, dir.z, TRUE, &direction, &temp_vehicle, &distance);
 	Value _direction(kArrayType);
 	_direction.PushBack(direction, allocator).PushBack(distance, allocator);
 	d["direction"] = _direction;
