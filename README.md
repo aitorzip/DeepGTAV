@@ -1,6 +1,6 @@
 # DeepGTAV v2
 
-### NEW: I've created an Slack channel for DeepGTAV users in order to build a community and agilize communication. If you wish to join, please email me and I will send you an invitation.
+### I've created an Slack channel for DeepGTAV users in order to build a community, solve issues and agilize communication. If you wish to join, please email me and I will send you an invitation.
 
 *A plugin for GTAV that transforms it into a vision-based self-driving car research environment.*
 
