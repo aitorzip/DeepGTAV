@@ -1,5 +1,7 @@
 # DeepGTAV v2
 
+_NEW:_ I've created an Slack channel for DeepGTAV users in order to build a community and agilize communication. If you wish to join, please email me and I will send you an invitation.
+
 *A plugin for GTAV that transforms it into a vision-based self-driving car research environment.*
 
 <img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="900px">
