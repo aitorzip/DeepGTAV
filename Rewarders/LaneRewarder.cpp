@@ -4,9 +4,8 @@
 
 LaneRewarder::LaneRewarder(const char* pathsfile) {
 	while (nodes.size() == 0) {
-		if (PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) {
+		if (PATHFIND::_0xF7B79A50B905A30D(-8192.0f, 8192.0f, -8192.0f, 8192.0f)) {
 			populateNodes(pathsfile);
-			PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 		}
 		WAIT(0);
 	}

@@ -150,9 +150,8 @@ void Scenario::buildScenario() {
 	float heading;
 
 	GAMEPLAY::SET_RANDOM_SEED(std::time(NULL));
-	while (!PATHFIND::LOAD_ALL_PATH_NODES(TRUE)) WAIT(0);
+	while (!PATHFIND::_0xF7B79A50B905A30D(-8192.0f, 8192.0f, -8192.0f, 8192.0f)) WAIT(0);
 	PATHFIND::GET_CLOSEST_VEHICLE_NODE_WITH_HEADING(x, y, 0, &pos, &heading, 0, 0, 0);
-	PATHFIND::LOAD_ALL_PATH_NODES(FALSE);
 
 	ENTITY::DELETE_ENTITY(&vehicle);
 	vehicleHash = GAMEPLAY::GET_HASH_KEY((char*)_vehicle);

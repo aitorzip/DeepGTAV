@@ -79,7 +79,7 @@
       <AdditionalOptions>lib\ScriptHookV.lib %(AdditionalOptions)</AdditionalOptions>
     </Link>
     <PostBuildEvent>
-      <Command>copy "bin\Release\*" "C:\Program Files (x86)\Steam\steamapps\common\Grand Theft Auto V\*"</Command>
+      <Command>copy "bin\Release\*" "C:\Program Files\Rockstar Games\Grand Theft Auto V\*"</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
