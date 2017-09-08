@@ -74,3 +74,8 @@ float getFloatValue(Vehicle vehicle, int offset){
 
 	return *data;
 }
+
+void setFloatValue(Vehicle vehicle, int offset, float value) {
+	BYTE* pointerToData = getScriptHandleBaseAddress(vehicle) + offset;
+	*((float *)pointerToData) = value;
+}

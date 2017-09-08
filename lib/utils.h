@@ -15,3 +15,4 @@ void update_status_text();
 void set_status_text(std::string str, DWORD time = 2500, bool isGxtEntry = false);
 
 float getFloatValue(Vehicle vehicle, int offset);
+void setFloatValue(Vehicle vehicle, int offset, float value);
