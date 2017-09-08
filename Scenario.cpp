@@ -586,7 +586,7 @@ void Scenario::setBrake(){
 }
 
 void Scenario::setSteering(){
-	d["steering"] = - getFloatValue(vehicle, 0x924) / getFloatValue(vehicle, 0x91C);
+	d["steering"] = -getFloatValue(vehicle, 0x924) / 0.6981317008;
 }
 
 void Scenario::setSpeed(){
