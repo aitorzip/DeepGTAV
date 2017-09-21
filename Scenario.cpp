@@ -50,7 +50,7 @@ void Scenario::parseScenarioConfig(const Value& sc, bool setDefaults) {
 	if (drivingMode.IsArray()) {
 		if (!drivingMode[0].IsNull()) _drivingMode = drivingMode[0].GetInt();
 		else if (setDefaults)  _drivingMode = rand() % 4294967296;
-		if (drivingMode[1].IsNull()) _setSpeed = drivingMode[1].GetFloat(); 
+		if (!drivingMode[1].IsNull()) _setSpeed = drivingMode[1].GetFloat(); 
 		else if (setDefaults) _setSpeed = 1.0*(rand() % 20);
 	}
 	else if (setDefaults) {
@@ -370,27 +370,16 @@ void Scenario::setVehiclesList() {
 
 					FUR.x = position.x + dim.y*rightVector.x + dim.x*forwardVector.x + dim.z*upVector.x;
 					FUR.y = position.y + dim.y*rightVector.y + dim.x*forwardVector.y + dim.z*upVector.y;
-					FUR.z = position.z + dim.y*rightVector.z + dim.x*forwardVector.z + dim.z*upVector.z;
-					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(FUR.x, FUR.y, FUR.z, &(FUR.z), 0);
-					//FUR.z += 2 * dim.z;
+					//FUR.z = position.z + dim.y*rightVector.z + dim.x*forwardVector.z + dim.z*upVector.z;
+					GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(FUR.x, FUR.y, 1000.0, &(FUR.z), 0);
+					FUR.z += 2 * dim.z;
 
 					BLL.x = position.x - dim.y*rightVector.x - dim.x*forwardVector.x - dim.z*upVector.x;
 					BLL.y = position.y - dim.y*rightVector.y - dim.x*forwardVector.y - dim.z*upVector.y;
-					BLL.z = position.z - dim.y*rightVector.z - dim.x*forwardVector.z - dim.z*upVector.z;
-					//GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(BLL.x, BLL.y, 1000.0, &(BLL.z), 0);
+					//BLL.z = position.z - dim.y*rightVector.z - dim.x*forwardVector.z - dim.z*upVector.z;
+					GAMEPLAY::GET_GROUND_Z_FOR_3D_COORD(BLL.x, BLL.y, 1000.0, &(BLL.z), 0);
 
-					Value _vehicle(kObjectType);
 
-					Value _vector(kArrayType);
-					_vector.PushBack(FUR.x - currentPos.x, allocator).PushBack(FUR.y - currentPos.y, allocator).PushBack(FUR.z - currentPos.z, allocator);
-					_vehicle.AddMember("FUR", _vector, allocator);
-					_vector.SetArray();
-					_vector.PushBack(BLL.x - currentPos.x, allocator).PushBack(BLL.y - currentPos.y, allocator).PushBack(BLL.z - currentPos.z, allocator);
-					_vehicle.AddMember("BLL", _vector, allocator).AddMember("speed", speed, allocator).AddMember("heading", heading, allocator).AddMember("classID", classid, allocator);
-
-					_vehicles.PushBack(_vehicle, allocator);
-
-					#ifdef DEBUG
 					Vector3 edge1 = BLL;
 					Vector3 edge2;
 					Vector3 edge3;
@@ -424,6 +413,35 @@ void Scenario::setVehiclesList() {
 					edge8.y = edge5.y - 2 * dim.z*upVector.y;
 					edge8.z = edge5.z - 2 * dim.z*upVector.z;
 
+					float x1, x2, x3, x4, x5, x6, x7, x8, y1, y2, y3, y4, y5, y6, y7, y8;
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge1.x, edge1.y, edge1.z, &x1, &y1);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge2.x, edge2.y, edge2.z, &x2, &y2);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge3.x, edge3.y, edge3.z, &x3, &y3);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge4.x, edge4.y, edge4.z, &x4, &y4);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge5.x, edge5.y, edge5.z, &x5, &y5);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge6.x, edge6.y, edge6.z, &x6, &y6);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge7.x, edge7.y, edge7.z, &x7, &y7);
+					GRAPHICS::_WORLD3D_TO_SCREEN2D(edge8.x, edge8.y, edge8.z, &x8, &y8);
+
+					Value _vehicle(kObjectType);
+
+					Value _vector(kArrayType);
+
+					_vector.PushBack(x1, allocator).PushBack(y1, allocator).PushBack(x2, allocator).PushBack(y2, allocator).PushBack(x3, allocator).PushBack(y3, allocator).PushBack(x4, allocator).PushBack(y4, allocator).PushBack(x5, allocator).PushBack(y5, allocator).PushBack(x6, allocator).PushBack(y6, allocator).PushBack(x7, allocator).PushBack(y7, allocator).PushBack(x8, allocator).PushBack(y8, allocator);
+					_vehicle.AddMember("coords_2d", _vector, allocator);
+					_vector.SetArray();
+
+					_vector.PushBack(FUR.x - currentPos.x, allocator).PushBack(FUR.y - currentPos.y, allocator).PushBack(FUR.z - currentPos.z, allocator);
+					_vehicle.AddMember("FUR", _vector, allocator);
+					_vector.SetArray();
+					_vector.PushBack(BLL.x - currentPos.x, allocator).PushBack(BLL.y - currentPos.y, allocator).PushBack(BLL.z - currentPos.z, allocator);
+					_vehicle.AddMember("BLL", _vector, allocator).AddMember("speed", speed, allocator).AddMember("heading", heading, allocator).AddMember("classID", classid, allocator);
+
+					_vehicles.PushBack(_vehicle, allocator);
+
+					//#ifdef DEBUG
+
+
 					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge2.x, edge2.y, edge2.z, 0, 255, 0, 200);
 					GRAPHICS::DRAW_LINE(edge1.x, edge1.y, edge1.z, edge4.x, edge4.y, edge4.z, 0, 255, 0, 200);
 					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge3.x, edge3.y, edge3.z, 0, 255, 0, 200);
@@ -438,7 +456,7 @@ void Scenario::setVehiclesList() {
 					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 0, 255, 0, 200);
 					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 0, 255, 0, 200);
 					GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 0, 255, 0, 200);
-					#endif
+					//#endif
 
 				}
 			}
@@ -519,7 +537,7 @@ void Scenario::setPedsList(){
 
 					_peds.PushBack(_ped, allocator);
 
-					#ifdef DEBUG
+					//#ifdef DEBUG
 					Vector3 edge1 = BLL;
 					Vector3 edge2;
 					Vector3 edge3;
@@ -567,7 +585,7 @@ void Scenario::setPedsList(){
 					GRAPHICS::DRAW_LINE(edge2.x, edge2.y, edge2.z, edge8.x, edge8.y, edge8.z, 255, 0, 0, 200);
 					GRAPHICS::DRAW_LINE(edge3.x, edge3.y, edge3.z, edge5.x, edge5.y, edge5.z, 255, 0, 0, 200);
 					GRAPHICS::DRAW_LINE(edge4.x, edge4.y, edge4.z, edge6.x, edge6.y, edge6.z, 255, 0, 0, 200);
-					#endif
+					//#endif
 
 				}
 			}
