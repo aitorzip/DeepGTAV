@@ -1,14 +1,5 @@
 # DeepGTAV v2
 
-### IMPORTANT ANNOUNCEMENT: As some of you may know. My region, Catalonia, has been intensively repressed and attacked by the Spanish government when trying to celebrate a referendum to choose either to keep being part of the Spanish Kingdom or declare Catalonia as an independent republic, after years and years of economical suffocation, threats and prohibition. October the 1st thousands of people had to concentrate in front of the voting places to stop the Spanish police from stealing the ballot boxes, this finished with the worst police violence that has happened in a "democratic" country so far, with 800 people injured, you can check the facts everywhere: 
-
-* http://www.bbc.com/news/av/world-europe-41463955/catalonia-referendum-violence-as-police-block-voting
-* https://www.nbcnews.com/news/world/catalonia-independence-poll-spanish-police-scuffle-defiant-voters-n806291
-* https://www.theguardian.com/world/catalonia
-* http://edition.cnn.com/2017/10/01/europe/catalonia-spain-independence-referendum-vote/index.html
-
-### Because of this I am forced to suspend the mantainance of DeepGTAV temorarily, while I fight for the freedom of expression, reunion and basic human rights in Catalonia. Hoping the DeepGTAV community will solve any issue they may find along the way. Sorry for the inconveniences.
-
 *A plugin for GTAV that transforms it into a vision-based self-driving car research environment.*
 
 <img src="https://img.gta5-mods.com/q95/images/naturalvision-photorealistic-gtav/b4de94-GTA5%202016-08-28%2022-05-52.jpg" alt="Self-Driving Car" width="900px">
