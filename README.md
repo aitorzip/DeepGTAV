@@ -8,7 +8,7 @@
 1. Make sure GTAV is on version 1.0.1180.2 or below
 2. Copy-paste the contents of *bin/Release* under your GTAV installation directory
 3. Replace your saved game data in *Documents/Rockstar Games/GTA V/Profiles/* with the contents of *bin/SaveGame*
-4. Download *[paths.xml](https://drive.google.com/open?id=0Bzh5djJlCOmMOTA1RVlOXzZ5dEk)* and store it also in the GTAV installation directory. 
+4. Download *[paths.xml](https://drive.google.com/file/d/0B6pR5O2YrmHnNU9EMDBSSFpMV00/view?usp=sharing)* and store it also in the GTAV installation directory. 
 
 ## Recommendations
 
