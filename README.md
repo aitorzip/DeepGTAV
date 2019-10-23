@@ -12,9 +12,9 @@
 
 ## Recommendations
 
-1. Under your game settings, set your screen to windowed mode
-2. Bypass the menu screen by configuring GTAV to start directly into Story Mode
-3. To avoid the Rockstar updates, start the game using GTA5.exe, otherwise use GTAVLauncher.exe or PlayGTAV.exe
+*. Under your game settings, set your screen to windowed mode
+*. Bypass the menu screen by configuring GTAV to start directly into Story Mode
+*. To avoid the Rockstar updates, start the game using GTA5.exe, otherwise use GTAVLauncher.exe or PlayGTAV.exe
 
 ## How it works
 
