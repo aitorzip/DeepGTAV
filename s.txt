@@ -1,0 +1,2 @@
+I'm just learning git and github.
+I am testing how to pull resquest. can disregard. sorry there.
